@@ -14,6 +14,7 @@ interface ForecastTabProps {
   onSelectRegion: (region: Region) => void;
   regionHistory: PriceHistoryPoint[];
   historyLoading: boolean;
+  allRegionsHistory: Map<number, PriceHistoryPoint[]>;
 }
 
 export default function ForecastTab({ 
@@ -21,32 +22,41 @@ export default function ForecastTab({
   selectedRegion, 
   onSelectRegion,
   regionHistory,
-  historyLoading
+  historyLoading,
+  allRegionsHistory
 }: ForecastTabProps) {
   const [daysAhead] = useState(90);
 
-  const topRisingPredictions = regions
+  // Рассчитываем прогноз для всех регионов
+  const regionPredictions = regions
     .filter(r => r.id !== selectedRegion.id)
     .map(region => {
-      if (!region.id) return null;
+      const history = allRegionsHistory.get(region.id);
+      if (!history || history.length < 7) return null;
+      
+      const prediction = predictPrices(history, daysAhead);
+      const currentPrice = parseFloat(history[history.length - 1]?.price?.toString() || '0');
+      const predictedPrice = prediction.predictions[prediction.predictions.length - 1]?.predicted || currentPrice;
+      const changePercent = ((predictedPrice - currentPrice) / currentPrice) * 100;
+      
       return {
         region,
-        trend: 'rising' as const
+        currentPrice,
+        predictedPrice,
+        changePercent,
+        trend: changePercent > 0 ? 'rising' as const : 'falling' as const
       };
     })
-    .filter((item): item is { region: Region; trend: 'rising' } => item !== null)
+    .filter((item): item is { region: Region; currentPrice: number; predictedPrice: number; changePercent: number; trend: 'rising' | 'falling' } => item !== null);
+
+  const topRisingPredictions = regionPredictions
+    .filter(p => p.trend === 'rising')
+    .sort((a, b) => b.changePercent - a.changePercent)
     .slice(0, 5);
 
-  const topFallingPredictions = regions
-    .filter(r => r.id !== selectedRegion.id)
-    .map(region => {
-      if (!region.id) return null;
-      return {
-        region,
-        trend: 'falling' as const
-      };
-    })
-    .filter((item): item is { region: Region; trend: 'falling' } => item !== null)
+  const topFallingPredictions = regionPredictions
+    .filter(p => p.trend === 'falling')
+    .sort((a, b) => a.changePercent - b.changePercent)
     .slice(0, 5);
 
   return (
@@ -121,14 +131,14 @@ export default function ForecastTab({
                       <div>
                         <p className="font-medium text-sm">{item.region.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          Текущая: {item.region.current_price.toFixed(2)} ₽
+                          Текущая: {item.currentPrice.toFixed(2)} ₽
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
                       <Badge variant="destructive" className="text-xs">
                         <Icon name="TrendingUp" size={12} className="mr-1" />
-                        +{item.region.change.toFixed(1)}%
+                        +{item.changePercent.toFixed(1)}%
                       </Badge>
                     </div>
                   </div>
@@ -160,14 +170,14 @@ export default function ForecastTab({
                       <div>
                         <p className="font-medium text-sm">{item.region.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          Текущая: {item.region.current_price.toFixed(2)} ₽
+                          Текущая: {item.currentPrice.toFixed(2)} ₽
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
                       <Badge className="bg-secondary text-secondary-foreground text-xs">
                         <Icon name="TrendingDown" size={12} className="mr-1" />
-                        {item.region.change.toFixed(1)}%
+                        {item.changePercent.toFixed(1)}%
                       </Badge>
                     </div>
                   </div>

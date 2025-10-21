@@ -28,6 +28,7 @@ export default function Index() {
   const [selectedAnalyticsRegions, setSelectedAnalyticsRegions] = useState<number[]>([]);
   const [multiRegionData, setMultiRegionData] = useState<any[]>([]);
   const [multiRegionLoading, setMultiRegionLoading] = useState(false);
+  const [allRegionsHistory, setAllRegionsHistory] = useState<Map<number, PriceHistoryPoint[]>>(new Map());
   
   const maxPrice = useMemo(() => 
     regions.length > 0 ? Math.max(...regions.map(r => r.current_price)) : 10,
@@ -75,6 +76,12 @@ export default function Index() {
   useEffect(() => {
     fetchData();
   }, []);
+  
+  useEffect(() => {
+    if (regions.length > 0) {
+      fetchAllRegionsHistory(90);
+    }
+  }, [regions]);
 
   useEffect(() => {
     if (selectedRegion) {
@@ -130,11 +137,45 @@ export default function Index() {
       setHistoryLoading(true);
       const response = await fetch(`${API_URL}?region_id=${regionId}&days=${days}`);
       const data = await response.json();
-      setRegionHistory(data.history || []);
+      const history = data.history || [];
+      setRegionHistory(history);
+      
+      // Обновляем общий кеш
+      setAllRegionsHistory(prev => {
+        const newMap = new Map(prev);
+        newMap.set(regionId, history);
+        return newMap;
+      });
     } catch (error) {
       console.error('Failed to fetch region history:', error);
     } finally {
       setHistoryLoading(false);
+    }
+  };
+  
+  const fetchAllRegionsHistory = async (days: number) => {
+    try {
+      const historyMap = new Map<number, PriceHistoryPoint[]>();
+      
+      // Загружаем историю для первых 20 регионов (чтобы не перегружать API)
+      const regionsToFetch = regions.slice(0, 20);
+      
+      const promises = regionsToFetch.map(region =>
+        fetch(`${API_URL}?region_id=${region.id}&days=${days}`)
+          .then(r => r.json())
+          .then(data => ({ id: region.id, history: data.history || [] }))
+          .catch(() => ({ id: region.id, history: [] }))
+      );
+      
+      const results = await Promise.all(promises);
+      
+      results.forEach(({ id, history }) => {
+        historyMap.set(id, history);
+      });
+      
+      setAllRegionsHistory(historyMap);
+    } catch (error) {
+      console.error('Failed to fetch all regions history:', error);
     }
   };
   
@@ -314,6 +355,7 @@ export default function Index() {
               onSelectRegion={setSelectedRegion}
               regionHistory={regionHistory}
               historyLoading={historyLoading}
+              allRegionsHistory={allRegionsHistory}
             />
           </TabsContent>
 
