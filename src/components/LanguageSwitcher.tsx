@@ -16,7 +16,7 @@ export default function LanguageSwitcher() {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <Icon name="Languages" size={16} />
-          <span className="uppercase">{language}</span>
+          <span className="uppercase">{language === 'en' ? 'EN' : 'RU'}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

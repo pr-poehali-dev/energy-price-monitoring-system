@@ -85,11 +85,11 @@ export default function SyncLogs() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-blue-950 dark:to-indigo-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6 space-y-6">
         <DashboardHeader />
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <Icon name="Activity" size={28} />
