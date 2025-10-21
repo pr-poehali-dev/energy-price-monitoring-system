@@ -16,6 +16,7 @@ import type { Region, PriceHistoryPoint } from './types';
 import { PERIOD_LABELS } from './types';
 import { exportMultiRegionHistoryToExcel, exportMultiRegionHistoryToCSV } from '@/utils/exportData';
 import PredictionCard from './PredictionCard';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AnalyticsTabProps {
   regions: Region[];
@@ -46,6 +47,7 @@ export default function AnalyticsTab({
   multiRegionLoading,
   selectedRegion
 }: AnalyticsTabProps) {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [showRegionSelector, setShowRegionSelector] = useState(false);
   
@@ -84,24 +86,24 @@ export default function AnalyticsTab({
     <div className="space-y-6 animate-fade-in">
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold">Исторические данные цен</h3>
+          <h3 className="text-xl font-semibold">{t('analytics.historicalData')}</h3>
           <div className="flex items-center gap-3">
             {selectedRegions.length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" disabled={multiRegionLoading || multiRegionData.length === 0}>
                     <Icon name="Download" size={16} className="mr-2" />
-                    Экспорт
+                    {t('regions.export')}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => exportMultiRegionHistoryToExcel(multiRegionData, regions, selectedRegions)}>
                     <Icon name="FileSpreadsheet" size={16} className="mr-2" />
-                    Excel (.xlsx)
+                    {t('export.excel')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => exportMultiRegionHistoryToCSV(multiRegionData, regions, selectedRegions)}>
                     <Icon name="FileText" size={16} className="mr-2" />
-                    CSV (.csv)
+                    {t('export.csv')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -111,7 +113,7 @@ export default function AnalyticsTab({
         </div>
         
         <div className="flex items-center gap-2 mb-6 flex-wrap">
-          <span className="text-sm text-muted-foreground">Период:</span>
+          <span className="text-sm text-muted-foreground">{t('analytics.period')}</span>
           {Object.entries(PERIOD_LABELS).map(([value, label]) => (
             <Button 
               key={value}

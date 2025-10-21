@@ -54,14 +54,14 @@ export default function OverviewTab({
   const getTariffLabel = () => {
     const parts: string[] = [];
     
-    if (tariffStructure === 'single') parts.push('Одноставочный');
-    else if (tariffStructure === 'two_zone') parts.push('Двухзонный');
-    else if (tariffStructure === 'three_zone') parts.push('Трёхзонный');
+    if (tariffStructure === 'single') parts.push(t('tariff.single'));
+    else if (tariffStructure === 'two_zone') parts.push(t('tariff.twoZone'));
+    else if (tariffStructure === 'three_zone') parts.push(t('tariff.threeZone'));
     
-    if (consumerType === 'electric_stove') parts.push('с электроплитой');
-    else if (consumerType === 'standard') parts.push('стандарт');
+    if (consumerType === 'electric_stove') parts.push(t('tariff.withStove'));
+    else if (consumerType === 'standard') parts.push(t('tariff.standard'));
     
-    return parts.length > 0 ? parts.join(', ') : 'все тарифы';
+    return parts.length > 0 ? parts.join(', ') : t('tariff.allTariffs');
   };
 
   const CustomTooltip = ({ active, payload }: any) => {

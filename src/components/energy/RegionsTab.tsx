@@ -12,6 +12,7 @@ import {
 import type { Region } from './types';
 import { useState } from 'react';
 import { exportRegionsToExcel, exportRegionsToCSV } from '@/utils/exportData';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface RegionsTabProps {
   regions: Region[];
@@ -22,6 +23,7 @@ interface RegionsTabProps {
 type SortOption = 'name' | 'price-asc' | 'price-desc' | 'change-asc' | 'change-desc';
 
 export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: RegionsTabProps) {
+  const { t } = useLanguage();
   const [sortBy, setSortBy] = useState<SortOption>('name');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -51,28 +53,28 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
       <Card className="lg:col-span-2 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold">Все регионы</h3>
+          <h3 className="text-xl font-semibold">{t('regions.all')}</h3>
           <div className="flex items-center gap-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
                   <Icon name="Download" size={16} className="mr-2" />
-                  Экспорт
+                  {t('regions.export')}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => exportRegionsToExcel(filteredAndSortedRegions)}>
                   <Icon name="FileSpreadsheet" size={16} className="mr-2" />
-                  Excel (.xlsx)
+                  {t('export.excel')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => exportRegionsToCSV(filteredAndSortedRegions)}>
                   <Icon name="FileText" size={16} className="mr-2" />
-                  CSV (.csv)
+                  {t('export.csv')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <Badge variant="outline">
-              {filteredAndSortedRegions.length} из {regions.length}
+              {filteredAndSortedRegions.length} {t('regions.of')} {regions.length}
             </Badge>
           </div>
         </div>
@@ -81,7 +83,7 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
           <div className="relative">
             <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input 
-              placeholder="Поиск региона..." 
+              placeholder={t('regions.search')} 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -100,14 +102,14 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
         </div>
         
         <div className="flex items-center gap-2 mb-4 flex-wrap">
-          <span className="text-sm text-muted-foreground">Сортировка:</span>
+          <span className="text-sm text-muted-foreground">{t('regions.sorting')}</span>
           <Button 
             size="sm" 
             variant={sortBy === 'name' ? 'default' : 'outline'}
             onClick={() => setSortBy('name')}
           >
             <Icon name="SortAsc" size={14} className="mr-1" />
-            По названию
+            {t('regions.byName')}
           </Button>
           <Button 
             size="sm" 
@@ -115,7 +117,7 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
             onClick={() => setSortBy('price-asc')}
           >
             <Icon name="ArrowUp" size={14} className="mr-1" />
-            Дешевле
+            {t('regions.cheaper')}
           </Button>
           <Button 
             size="sm" 
@@ -123,7 +125,7 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
             onClick={() => setSortBy('price-desc')}
           >
             <Icon name="ArrowDown" size={14} className="mr-1" />
-            Дороже
+            {t('regions.expensive')}
           </Button>
           <Button 
             size="sm" 
@@ -131,7 +133,7 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
             onClick={() => setSortBy('change-desc')}
           >
             <Icon name="TrendingUp" size={14} className="mr-1" />
-            Рост
+            {t('regions.growth')}
           </Button>
           <Button 
             size="sm" 
@@ -139,7 +141,7 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
             onClick={() => setSortBy('change-asc')}
           >
             <Icon name="TrendingDown" size={14} className="mr-1" />
-            Снижение
+            {t('regions.decline')}
           </Button>
         </div>
         <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2">
@@ -181,8 +183,8 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
           ) : (
             <div className="text-center py-12">
               <Icon name="Search" size={48} className="mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Регионы не найдены</p>
-              <p className="text-sm text-muted-foreground mt-1">Попробуйте изменить запрос</p>
+              <p className="text-muted-foreground">{t('regions.notFound')}</p>
+              <p className="text-sm text-muted-foreground mt-1">{t('regions.tryAgain')}</p>
             </div>
           )}
         </div>
@@ -191,7 +193,7 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
       <Card className="p-6">
         <div className="flex items-center gap-3 mb-6">
           <Icon name="Info" className="text-primary" size={24} />
-          <h3 className="text-xl font-semibold">Детали региона</h3>
+          <h3 className="text-xl font-semibold">{t('regions.details')}</h3>
         </div>
         <div className="space-y-6">
           <div>
@@ -201,14 +203,14 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
 
           <div className="space-y-4">
             <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
-              <p className="text-sm text-muted-foreground mb-1">Текущая цена</p>
+              <p className="text-sm text-muted-foreground mb-1">{t('regions.currentPrice')}</p>
               <p className="text-4xl font-mono font-bold">{selectedRegion.current_price.toFixed(2)} ₽</p>
-              <p className="text-sm text-muted-foreground mt-1">за кВт⋅ч</p>
+              <p className="text-sm text-muted-foreground mt-1">{t('stats.perKwh')}</p>
             </div>
 
             <div className="p-4 rounded-lg bg-muted">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-medium">Изменение</p>
+                <p className="text-sm font-medium">{t('common.change')}</p>
                 <Icon 
                   name={selectedRegion.change > 0 ? "TrendingUp" : "TrendingDown"} 
                   className={selectedRegion.change > 0 ? 'text-destructive' : 'text-secondary'}

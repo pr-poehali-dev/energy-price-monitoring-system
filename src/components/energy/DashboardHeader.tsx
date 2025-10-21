@@ -6,10 +6,12 @@ import CronSetupDialog from '@/components/CronSetupDialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 export default function DashboardHeader() {
   const { t, language } = useLanguage();
   const [syncing, setSyncing] = useState(false);
+  const navigate = useNavigate();
 
   const handleSync = async () => {
     setSyncing(true);
@@ -24,13 +26,13 @@ export default function DashboardHeader() {
       const result = await response.json();
       
       if (result.success) {
-        toast.success(`Обновлено: ${result.updated} тарифов из ${result.parsed} регионов`);
+        toast.success(t('sync.updated').replace('{0}', result.updated).replace('{1}', result.parsed));
         setTimeout(() => window.location.reload(), 1500);
       } else {
-        toast.error('Ошибка при синхронизации тарифов');
+        toast.error(t('sync.error'));
       }
     } catch (error) {
-      toast.error('Не удалось синхронизировать данные');
+      toast.error(t('sync.failed'));
     } finally {
       setSyncing(false);
     }
@@ -46,6 +48,14 @@ export default function DashboardHeader() {
         <p className="text-muted-foreground mt-1">{t('app.subtitle')}</p>
       </div>
       <div className="flex flex-wrap items-center gap-2 md:gap-3">
+        <Button 
+          onClick={() => navigate('/sync-logs')}
+          variant="ghost"
+          size="sm"
+        >
+          <Icon name="Activity" size={16} className="mr-2" />
+          {t('logs.title')}
+        </Button>
         <CronSetupDialog />
         <Button 
           onClick={handleSync}
@@ -54,7 +64,7 @@ export default function DashboardHeader() {
           size="sm"
         >
           <Icon name={syncing ? "Loader2" : "RefreshCw"} size={16} className={`mr-2 ${syncing ? 'animate-spin' : ''}`} />
-          {syncing ? 'Синхронизация...' : 'Обновить тарифы'}
+          {syncing ? t('sync.syncing') : t('sync.updateTariffs')}
         </Button>
         <Badge variant="outline" className="px-4 py-2 text-sm font-mono">
           <Icon name="Calendar" size={16} className="mr-2" />

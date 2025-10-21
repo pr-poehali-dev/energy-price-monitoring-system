@@ -8,6 +8,7 @@ import PredictionCard from './PredictionCard';
 import { predictPrices } from '@/utils/pricePredictor';
 import type { Region, PriceHistoryPoint } from './types';
 import { useTranslateNames } from '@/hooks/useTranslateNames';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ForecastTabProps {
   regions: Region[];
@@ -27,6 +28,7 @@ export default function ForecastTab({
   allRegionsHistory
 }: ForecastTabProps) {
   const { translateRegionName } = useTranslateNames();
+  const { t } = useLanguage();
   const [daysAhead] = useState(90);
   const [selectedTariff, setSelectedTariff] = useState<'all' | 'single' | 'two_zone' | 'three_zone'>('all');
   const [selectedTimeZone, setSelectedTimeZone] = useState<'all' | 'day' | 'night' | 'peak' | 'half_peak'>('all');
@@ -97,9 +99,9 @@ export default function ForecastTab({
         <div className="space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h3 className="text-xl font-semibold">Выберите регион для прогноза</h3>
+              <h3 className="text-xl font-semibold">{t('forecast.selectRegion')}</h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Прогнозирование на основе исторических данных
+                {t('forecast.basedOnHistory')}
               </p>
             </div>
             <Select 
@@ -110,7 +112,7 @@ export default function ForecastTab({
               }}
             >
               <SelectTrigger className="w-[300px]">
-                <SelectValue placeholder="Выберите регион" />
+                <SelectValue placeholder={t('forecast.selectForForecast')} />
               </SelectTrigger>
               <SelectContent>
                 {regions.map((region) => (
@@ -124,40 +126,40 @@ export default function ForecastTab({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Тип тарифа</label>
+              <label className="text-sm font-medium mb-2 block">{t('forecast.tariffType')}</label>
               <Select value={selectedTariff} onValueChange={(value: any) => setSelectedTariff(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Все тарифы</SelectItem>
-                  <SelectItem value="single">Одноставочный</SelectItem>
-                  <SelectItem value="two_zone">Двухзонный (день/ночь)</SelectItem>
-                  <SelectItem value="three_zone">Трёхзонный (пик/полупик/ночь)</SelectItem>
+                  <SelectItem value="all">{t('tariff.allTariffs')}</SelectItem>
+                  <SelectItem value="single">{t('tariff.single')}</SelectItem>
+                  <SelectItem value="two_zone">{t('tariff.twoZone')} ({t('tariff.day')}/{t('tariff.night')})</SelectItem>
+                  <SelectItem value="three_zone">{t('tariff.threeZone')} ({t('tariff.peak')}/{t('tariff.halfPeak')}/{t('tariff.night')})</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {(selectedTariff === 'two_zone' || selectedTariff === 'three_zone') && (
               <div>
-                <label className="text-sm font-medium mb-2 block">Временная зона</label>
+                <label className="text-sm font-medium mb-2 block">{t('filters.timeZone')}</label>
                 <Select value={selectedTimeZone} onValueChange={(value: any) => setSelectedTimeZone(value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Все зоны</SelectItem>
+                    <SelectItem value="all">{t('timeZone.all')}</SelectItem>
                     {selectedTariff === 'two_zone' && (
                       <>
-                        <SelectItem value="day">День</SelectItem>
-                        <SelectItem value="night">Ночь</SelectItem>
+                        <SelectItem value="day">{t('tariff.day')}</SelectItem>
+                        <SelectItem value="night">{t('tariff.night')}</SelectItem>
                       </>
                     )}
                     {selectedTariff === 'three_zone' && (
                       <>
-                        <SelectItem value="peak">Пик</SelectItem>
-                        <SelectItem value="half_peak">Полупик</SelectItem>
-                        <SelectItem value="night">Ночь</SelectItem>
+                        <SelectItem value="peak">{t('tariff.peak')}</SelectItem>
+                        <SelectItem value="half_peak">{t('tariff.halfPeak')}</SelectItem>
+                        <SelectItem value="night">{t('tariff.night')}</SelectItem>
                       </>
                     )}
                   </SelectContent>
@@ -172,7 +174,7 @@ export default function ForecastTab({
         <Card className="p-12">
           <div className="flex flex-col items-center justify-center">
             <Icon name="Loader2" className="animate-spin text-primary mb-4" size={48} />
-            <p className="text-muted-foreground">Загрузка данных для прогноза...</p>
+            <p className="text-muted-foreground">{t('forecast.loading')}</p>
           </div>
         </Card>
       ) : (
@@ -191,9 +193,9 @@ export default function ForecastTab({
               <div className="flex items-center gap-3 mb-6">
                 <Icon name="TrendingUp" className="text-destructive" size={24} />
                 <div>
-                  <h3 className="text-lg font-semibold">Прогноз роста цен</h3>
+                  <h3 className="text-lg font-semibold">{t('forecast.growthForecast')}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Регионы с вероятным повышением
+                    {t('forecast.likelyIncrease')}
                   </p>
                 </div>
               </div>

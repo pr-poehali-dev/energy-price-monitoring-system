@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import type { Filters, ZoneStat } from './types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FilterPanelProps {
   filters: Filters;
@@ -28,6 +29,7 @@ export default function FilterPanel({
   maxPrice,
   onReset 
 }: FilterPanelProps) {
+  const { t } = useLanguage();
   const updateFilter = (key: keyof Filters, value: any) => {
     onFiltersChange({ ...filters, [key]: value });
   };
@@ -53,7 +55,7 @@ export default function FilterPanel({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Icon name="SlidersHorizontal" className="text-primary" size={24} />
-          <h3 className="text-xl font-semibold">Фильтры</h3>
+          <h3 className="text-xl font-semibold">{t('filters.title')}</h3>
           {activeFiltersCount > 0 && (
             <Badge variant="secondary">{activeFiltersCount}</Badge>
           )}
@@ -61,18 +63,18 @@ export default function FilterPanel({
         {activeFiltersCount > 0 && (
           <Button variant="ghost" size="sm" onClick={onReset}>
             <Icon name="X" size={16} className="mr-2" />
-            Сбросить
+            {t('filters.reset')}
           </Button>
         )}
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="text-sm font-medium mb-2 block">Поиск по названию</label>
+          <label className="text-sm font-medium mb-2 block">{t('filters.search')}</label>
           <div className="relative">
             <Icon name="Search" className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
             <Input
-              placeholder="Введите название региона..."
+              placeholder={t('filters.enterRegion')}
               value={filters.searchQuery}
               onChange={(e) => updateFilter('searchQuery', e.target.value)}
               className="pl-10"
@@ -81,7 +83,7 @@ export default function FilterPanel({
         </div>
 
         <div>
-          <label className="text-sm font-medium mb-2 block">Федеральные округа</label>
+          <label className="text-sm font-medium mb-2 block">{t('filters.federalDistricts')}</label>
           <div className="flex flex-wrap gap-2">
             {zoneStats.map((zone) => (
               <Badge
@@ -97,48 +99,48 @@ export default function FilterPanel({
         </div>
 
         <div>
-          <label className="text-sm font-medium mb-2 block">Период анализа</label>
+          <label className="text-sm font-medium mb-2 block">{t('filters.periodAnalysis')}</label>
           <Select value={filters.period} onValueChange={(value: any) => updateFilter('period', value)}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="30">1 месяц</SelectItem>
-              <SelectItem value="90">3 месяца</SelectItem>
-              <SelectItem value="180">6 месяцев</SelectItem>
-              <SelectItem value="365">1 год</SelectItem>
-              <SelectItem value="730">2 года</SelectItem>
-              <SelectItem value="1095">3 года</SelectItem>
-              <SelectItem value="1825">5 лет</SelectItem>
-              <SelectItem value="all">Все данные</SelectItem>
+              <SelectItem value="30">{t('period.oneMonth')}</SelectItem>
+              <SelectItem value="90">{t('period.threeMonths')}</SelectItem>
+              <SelectItem value="180">{t('period.sixMonths')}</SelectItem>
+              <SelectItem value="365">{t('period.oneYear')}</SelectItem>
+              <SelectItem value="730">{t('period.twoYears')}</SelectItem>
+              <SelectItem value="1095">{t('period.threeYears')}</SelectItem>
+              <SelectItem value="1825">{t('period.fiveYears')}</SelectItem>
+              <SelectItem value="all">{t('period.all')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div>
-          <label className="text-sm font-medium mb-2 block">Тип изменения тарифа</label>
+          <label className="text-sm font-medium mb-2 block">{t('filters.changeType')}</label>
           <Select value={filters.tariffType} onValueChange={(value: any) => updateFilter('tariffType', value)}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Все регионы</SelectItem>
+              <SelectItem value="all">{t('filters.allRegions')}</SelectItem>
               <SelectItem value="growing">
                 <div className="flex items-center gap-2">
                   <Icon name="TrendingUp" size={16} className="text-destructive" />
-                  Растущие тарифы
+                  {t('filters.risingTariffs')}
                 </div>
               </SelectItem>
               <SelectItem value="decreasing">
                 <div className="flex items-center gap-2">
                   <Icon name="TrendingDown" size={16} className="text-secondary" />
-                  Снижающиеся тарифы
+                  {t('filters.decliningTariffs')}
                 </div>
               </SelectItem>
               <SelectItem value="stable">
                 <div className="flex items-center gap-2">
                   <Icon name="Minus" size={16} />
-                  Стабильные тарифы
+                  {t('filters.stableTariffs')}
                 </div>
               </SelectItem>
             </SelectContent>
@@ -146,40 +148,40 @@ export default function FilterPanel({
         </div>
 
         <div>
-          <label className="text-sm font-medium mb-2 block">Структура тарифа</label>
+          <label className="text-sm font-medium mb-2 block">{t('filters.tariffStructure')}</label>
           <Select value={filters.tariffStructure} onValueChange={(value: any) => updateFilter('tariffStructure', value)}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Все тарифы</SelectItem>
-              <SelectItem value="single">Одноставочный</SelectItem>
-              <SelectItem value="two_zone">Двухзонный (день/ночь)</SelectItem>
-              <SelectItem value="three_zone">Трёхзонный (пик/полупик/ночь)</SelectItem>
+              <SelectItem value="all">{t('tariff.allTariffs')}</SelectItem>
+              <SelectItem value="single">{t('tariff.single')}</SelectItem>
+              <SelectItem value="two_zone">{t('tariff.twoZone')} ({t('tariff.day')}/{t('tariff.night')})</SelectItem>
+              <SelectItem value="three_zone">{t('tariff.threeZone')} ({t('tariff.peak')}/{t('tariff.halfPeak')}/{t('tariff.night')})</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         {(filters.tariffStructure === 'two_zone' || filters.tariffStructure === 'three_zone') && (
           <div>
-            <label className="text-sm font-medium mb-2 block">Временная зона</label>
+            <label className="text-sm font-medium mb-2 block">{t('filters.timeZone')}</label>
             <Select value={filters.timeZone || 'all'} onValueChange={(value: any) => updateFilter('timeZone', value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Все зоны</SelectItem>
+                <SelectItem value="all">{t('timeZone.all')}</SelectItem>
                 {filters.tariffStructure === 'two_zone' && (
                   <>
-                    <SelectItem value="day">День</SelectItem>
-                    <SelectItem value="night">Ночь</SelectItem>
+                    <SelectItem value="day">{t('tariff.day')}</SelectItem>
+                    <SelectItem value="night">{t('tariff.night')}</SelectItem>
                   </>
                 )}
                 {filters.tariffStructure === 'three_zone' && (
                   <>
-                    <SelectItem value="peak">Пик</SelectItem>
-                    <SelectItem value="half_peak">Полупик</SelectItem>
-                    <SelectItem value="night">Ночь</SelectItem>
+                    <SelectItem value="peak">{t('tariff.peak')}</SelectItem>
+                    <SelectItem value="half_peak">{t('tariff.halfPeak')}</SelectItem>
+                    <SelectItem value="night">{t('tariff.night')}</SelectItem>
                   </>
                 )}
               </SelectContent>
@@ -188,22 +190,22 @@ export default function FilterPanel({
         )}
 
         <div>
-          <label className="text-sm font-medium mb-2 block">Тип потребителя</label>
+          <label className="text-sm font-medium mb-2 block">{t('filters.consumerType')}</label>
           <Select value={filters.consumerType} onValueChange={(value: any) => updateFilter('consumerType', value)}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Все потребители</SelectItem>
-              <SelectItem value="standard">Стандарт</SelectItem>
-              <SelectItem value="electric_stove">С электроплитой</SelectItem>
+              <SelectItem value="all">{t('filters.allConsumers')}</SelectItem>
+              <SelectItem value="standard">{t('tariff.standard')}</SelectItem>
+              <SelectItem value="electric_stove">{t('tariff.withStove')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium">Диапазон цен</label>
+            <label className="text-sm font-medium">{t('filters.priceRange')}</label>
             <span className="text-sm text-muted-foreground font-mono">
               {filters.priceRange[0].toFixed(2)} - {filters.priceRange[1].toFixed(2)} ₽
             </span>

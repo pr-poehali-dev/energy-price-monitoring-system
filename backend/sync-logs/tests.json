@@ -1,0 +1,21 @@
+{
+  "tests": [
+    {
+      "name": "Get sync logs",
+      "method": "GET",
+      "path": "/?limit=10",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "logs": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Handle OPTIONS for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}

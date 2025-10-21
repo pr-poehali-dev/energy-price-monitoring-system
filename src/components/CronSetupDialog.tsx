@@ -11,14 +11,16 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function CronSetupDialog() {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const cronUrl = 'https://functions.poehali.dev/2059700b-27e4-44a2-b539-769b7cec23a0';
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success('Скопировано в буфер обмена');
+    toast.success(t('sync.copied'));
   };
 
   return (
@@ -26,17 +28,17 @@ export default function CronSetupDialog() {
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm">
           <Icon name="Clock" size={16} className="mr-2" />
-          Автоматизация
+          {t('cron.automation')}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Icon name="Clock" size={24} />
-            Автоматическое обновление тарифов
+            {t('cron.autoUpdate')}
           </DialogTitle>
           <DialogDescription>
-            Настройте ежедневную синхронизацию данных о тарифах на электроэнергию
+            {t('cron.setupDescription')}
           </DialogDescription>
         </DialogHeader>
 
@@ -44,7 +46,7 @@ export default function CronSetupDialog() {
           <div className="p-4 bg-primary/5 rounded-lg border">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
               <Icon name="Link" size={18} />
-              URL для автоматизации
+              {t('cron.automationUrl')}
             </h3>
             <div className="flex items-center gap-2">
               <code className="flex-1 p-2 bg-background rounded text-xs break-all">
@@ -63,23 +65,23 @@ export default function CronSetupDialog() {
           <div className="space-y-4">
             <h3 className="font-semibold flex items-center gap-2">
               <Icon name="Settings" size={18} />
-              Варианты настройки
+              {t('cron.setupOptions')}
             </h3>
 
             <div className="border rounded-lg p-4 space-y-3">
               <div className="flex items-start gap-3">
                 <Badge variant="outline" className="mt-1">1</Badge>
                 <div className="flex-1">
-                  <h4 className="font-medium mb-1">cron-job.org (Рекомендуется)</h4>
+                  <h4 className="font-medium mb-1">cron-job.org ({t('cron.recommended')})</h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Бесплатный сервис для запуска задач по расписанию
+                    {t('cron.freeService')}
                   </p>
                   <ol className="text-sm space-y-1 list-decimal list-inside text-muted-foreground">
-                    <li>Зарегистрируйтесь на <a href="https://cron-job.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">cron-job.org</a></li>
-                    <li>Создайте новую задачу</li>
-                    <li>Вставьте URL выше</li>
-                    <li>Метод: POST</li>
-                    <li>Расписание: <code className="bg-muted px-1 rounded">0 3 * * *</code> (3:00 каждый день)</li>
+                    <li>{t('cron.register')} <a href="https://cron-job.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">cron-job.org</a></li>
+                    <li>{t('cron.createTask')}</li>
+                    <li>{t('cron.pasteUrl')}</li>
+                    <li>{t('cron.method')}: POST</li>
+                    <li>{t('cron.schedule')}: <code className="bg-muted px-1 rounded">0 3 * * *</code> ({t('cron.everyDay')})</li>
                   </ol>
                 </div>
               </div>
@@ -91,14 +93,14 @@ export default function CronSetupDialog() {
                 <div className="flex-1">
                   <h4 className="font-medium mb-1">EasyCron.com</h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Альтернативный бесплатный cron-сервис
+                    {t('cron.alternativeService')}
                   </p>
                   <ol className="text-sm space-y-1 list-decimal list-inside text-muted-foreground">
-                    <li>Зарегистрируйтесь на <a href="https://www.easycron.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">easycron.com</a></li>
-                    <li>Create Cron Job</li>
-                    <li>URL: вставьте URL выше</li>
-                    <li>HTTP Method: POST</li>
-                    <li>Cron Expression: <code className="bg-muted px-1 rounded">0 3 * * *</code></li>
+                    <li>{t('cron.register')} <a href="https://www.easycron.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">easycron.com</a></li>
+                    <li>{t('cron.createTask')}</li>
+                    <li>URL: {t('cron.pasteUrl')}</li>
+                    <li>{t('cron.method')}: POST</li>
+                    <li>{t('cron.schedule')}: <code className="bg-muted px-1 rounded">0 3 * * *</code></li>
                   </ol>
                 </div>
               </div>
@@ -110,10 +112,10 @@ export default function CronSetupDialog() {
                 <div className="flex-1">
                   <h4 className="font-medium mb-1">GitHub Actions</h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Если проект подключён к GitHub
+                    {t('cron.ifConnected')}
                   </p>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Создайте файл <code className="bg-muted px-1 rounded">.github/workflows/sync-tariffs.yml</code>
+                    {t('cron.createFile')} <code className="bg-muted px-1 rounded">.github/workflows/sync-tariffs.yml</code>
                   </p>
                   <Button
                     variant="outline"
@@ -132,7 +134,7 @@ jobs:
         run: curl -X POST ${cronUrl}`)}
                   >
                     <Icon name="Copy" size={16} className="mr-2" />
-                    Скопировать YAML
+                    {t('cron.copyYaml')}
                   </Button>
                 </div>
               </div>
@@ -142,13 +144,13 @@ jobs:
           <div className="p-4 bg-muted/50 rounded-lg">
             <h4 className="font-medium mb-2 flex items-center gap-2">
               <Icon name="Info" size={16} />
-              Расписание Cron
+              {t('cron.cronSchedule')}
             </h4>
             <div className="text-sm space-y-1 text-muted-foreground">
-              <p><code className="bg-background px-1 rounded">0 3 * * *</code> — каждый день в 03:00 UTC</p>
-              <p><code className="bg-background px-1 rounded">0 */6 * * *</code> — каждые 6 часов</p>
-              <p><code className="bg-background px-1 rounded">0 0 * * 1</code> — каждый понедельник в 00:00</p>
-              <p><code className="bg-background px-1 rounded">0 0 1 * *</code> — 1-го числа каждого месяца</p>
+              <p><code className="bg-background px-1 rounded">0 3 * * *</code> — {t('cron.everyDay')}</p>
+              <p><code className="bg-background px-1 rounded">0 */6 * * *</code> — {t('cron.every6Hours')}</p>
+              <p><code className="bg-background px-1 rounded">0 0 * * 1</code> — {t('cron.everyMonday')}</p>
+              <p><code className="bg-background px-1 rounded">0 0 1 * *</code> — {t('cron.firstDay')}</p>
             </div>
           </div>
 
@@ -159,7 +161,7 @@ jobs:
               onClick={() => window.open('https://crontab.guru', '_blank')}
             >
               <Icon name="ExternalLink" size={16} className="mr-2" />
-              Генератор Cron
+              {t('cron.generator')}
             </Button>
             <Button
               className="flex-1"
@@ -169,7 +171,7 @@ jobs:
               }}
             >
               <Icon name="Check" size={16} className="mr-2" />
-              Готово
+              {t('cron.done')}
             </Button>
           </div>
         </div>

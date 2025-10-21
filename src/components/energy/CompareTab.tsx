@@ -12,6 +12,7 @@ import {
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { ZoneStat, Region } from './types';
 import { exportRegionsToExcel, exportRegionsToCSV } from '@/utils/exportData';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface CompareTabProps {
   zoneStats: ZoneStat[];
@@ -19,6 +20,7 @@ interface CompareTabProps {
 }
 
 export default function CompareTab({ zoneStats, regions }: CompareTabProps) {
+  const { t } = useLanguage();
   const sortedRegionsByPrice = [...regions].sort((a, b) => b.current_price - a.current_price);
   const sortedRegionsByChange = [...regions].sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
 
@@ -28,33 +30,33 @@ export default function CompareTab({ zoneStats, regions }: CompareTabProps) {
       <TabsList className="grid w-full md:w-auto grid-cols-2 md:inline-flex">
         <TabsTrigger value="zones" className="gap-2">
           <Icon name="Map" size={16} />
-          По округам
+          {t('compare.byDistricts')}
         </TabsTrigger>
         <TabsTrigger value="regions" className="gap-2">
           <Icon name="MapPin" size={16} />
-          По регионам
+          {t('compare.byRegions')}
         </TabsTrigger>
       </TabsList>
 
       <TabsContent value="zones">
         <Card className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-semibold">Сравнение тарифов по федеральным округам</h3>
+        <h3 className="text-xl font-semibold">{t('compare.comparison')}</h3>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">
               <Icon name="Download" size={16} className="mr-2" />
-              Экспорт
+              {t('regions.export')}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => exportRegionsToExcel(regions)}>
               <Icon name="FileSpreadsheet" size={16} className="mr-2" />
-              Excel (.xlsx)
+              {t('export.excel')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => exportRegionsToCSV(regions)}>
               <Icon name="FileText" size={16} className="mr-2" />
-              CSV (.csv)
+              {t('export.csv')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -71,7 +73,7 @@ export default function CompareTab({ zoneStats, regions }: CompareTabProps) {
               borderRadius: '8px'
             }} 
           />
-          <Bar dataKey="avgPrice" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} name="Средняя цена" />
+          <Bar dataKey="avgPrice" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} name={t('compare.avgPrice')} />
         </BarChart>
       </ResponsiveContainer>
 
@@ -83,7 +85,7 @@ export default function CompareTab({ zoneStats, regions }: CompareTabProps) {
               <p className="font-medium text-sm">{zone.zone}</p>
             </div>
             <p className="text-2xl font-mono font-bold mb-1">{zone.avg_price.toFixed(2)} ₽</p>
-            <p className="text-xs text-muted-foreground">{zone.region_count} регионов</p>
+            <p className="text-xs text-muted-foreground">{zone.region_count} {t('regions.count')}</p>
           </div>
         ))}
       </div>
@@ -94,7 +96,7 @@ export default function CompareTab({ zoneStats, regions }: CompareTabProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold">Самые дорогие регионы</h3>
+              <h3 className="text-xl font-semibold">{t('compare.mostExpensive')}</h3>
               <Icon name="TrendingUp" className="text-destructive" size={20} />
             </div>
             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
@@ -127,7 +129,7 @@ export default function CompareTab({ zoneStats, regions }: CompareTabProps) {
 
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold">Самые дешевые регионы</h3>
+              <h3 className="text-xl font-semibold">{t('compare.cheapest')}</h3>
               <Icon name="TrendingDown" className="text-secondary" size={20} />
             </div>
             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
