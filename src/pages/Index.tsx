@@ -238,6 +238,8 @@ export default function Index() {
             <MapTab 
               regions={filteredRegions}
               onSelectRegion={setSelectedRegion}
+              period={filters.period}
+              onPeriodChange={(period) => setFilters(prev => ({ ...prev, period: period as Filters['period'] }))}
             />
           </TabsContent>
 

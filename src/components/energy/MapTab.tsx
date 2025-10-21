@@ -8,9 +8,22 @@ import type { Region } from './types';
 interface MapTabProps {
   regions: Region[];
   onSelectRegion: (region: Region) => void;
+  period?: string;
+  onPeriodChange?: (period: string) => void;
 }
 
-export default function MapTab({ regions, onSelectRegion }: MapTabProps) {
+export default function MapTab({ regions, onSelectRegion, period = '180', onPeriodChange }: MapTabProps) {
+  const getPeriodLabel = (days: string) => {
+    switch(days) {
+      case '30': return '1 месяц';
+      case '90': return '3 месяца';
+      case '180': return '6 месяцев';
+      case '365': return '1 год';
+      case '730': return '2 года';
+      case '1095': return '3 года';
+      default: return days + ' дней';
+    }
+  };
   const [hoveredRegion, setHoveredRegion] = useState<Region | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationStep, setAnimationStep] = useState(0);
@@ -55,10 +68,10 @@ export default function MapTab({ regions, onSelectRegion }: MapTabProps) {
     <div className="space-y-6 animate-fade-in">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 p-6">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-xl font-semibold">Тепловая карта цен</h3>
-              <p className="text-sm text-muted-foreground mt-1">Нажмите на регион для детальной информации</p>
+              <p className="text-sm text-muted-foreground mt-1">Изменения за {getPeriodLabel(period)}</p>
             </div>
             <div className="flex items-center gap-3">
               <Button
@@ -72,6 +85,54 @@ export default function MapTab({ regions, onSelectRegion }: MapTabProps) {
               <Icon name="Map" className="text-primary" size={24} />
             </div>
           </div>
+          
+          {onPeriodChange && (
+            <div className="flex items-center gap-2 mb-6 flex-wrap">
+              <span className="text-sm text-muted-foreground">Период:</span>
+              <Button 
+                size="sm" 
+                variant={period === '30' ? 'default' : 'outline'}
+                onClick={() => onPeriodChange('30')}
+              >
+                1 месяц
+              </Button>
+              <Button 
+                size="sm" 
+                variant={period === '90' ? 'default' : 'outline'}
+                onClick={() => onPeriodChange('90')}
+              >
+                3 месяца
+              </Button>
+              <Button 
+                size="sm" 
+                variant={period === '180' ? 'default' : 'outline'}
+                onClick={() => onPeriodChange('180')}
+              >
+                6 месяцев
+              </Button>
+              <Button 
+                size="sm" 
+                variant={period === '365' ? 'default' : 'outline'}
+                onClick={() => onPeriodChange('365')}
+              >
+                1 год
+              </Button>
+              <Button 
+                size="sm" 
+                variant={period === '730' ? 'default' : 'outline'}
+                onClick={() => onPeriodChange('730')}
+              >
+                2 года
+              </Button>
+              <Button 
+                size="sm" 
+                variant={period === '1095' ? 'default' : 'outline'}
+                onClick={() => onPeriodChange('1095')}
+              >
+                3 года
+              </Button>
+            </div>
+          )}
 
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
