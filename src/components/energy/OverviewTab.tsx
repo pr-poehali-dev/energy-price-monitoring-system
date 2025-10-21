@@ -13,6 +13,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import type { Region, ZoneStat, PriceHistoryPoint, PeriodOption } from './types';
 import { PERIOD_LABELS } from './types';
 import { exportHistoryToExcel, exportHistoryToCSV, exportRegionsToExcel, exportRegionsToCSV } from '@/utils/exportData';
+import PredictionCard from './PredictionCard';
 
 interface OverviewTabProps {
   regions: Region[];
@@ -190,6 +191,15 @@ export default function OverviewTab({
             ))}
         </div>
       </Card>
+
+      {selectedRegion && regionHistory.length >= 10 && (
+        <PredictionCard 
+          regionHistory={regionHistory}
+          regionName={selectedRegion.name}
+          currentPrice={selectedRegion.current_price}
+          daysAhead={90}
+        />
+      )}
     </div>
   );
 }

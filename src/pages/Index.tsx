@@ -9,6 +9,7 @@ import AnalyticsTab from '@/components/energy/AnalyticsTab';
 import CompareTab from '@/components/energy/CompareTab';
 import FilterPanel from '@/components/energy/FilterPanel';
 import MapTab from '@/components/energy/MapTab';
+import ForecastTab from '@/components/energy/ForecastTab';
 import type { Region, ZoneStat, PriceHistoryPoint, Filters } from '@/components/energy/types';
 import { API_URL } from '@/components/energy/types';
 import { getCitiesForRegion } from '@/utils/citiesData';
@@ -244,10 +245,14 @@ export default function Index() {
         <StatsCards regions={filteredRegions} />
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full md:w-auto grid-cols-3 md:grid-cols-6 md:inline-flex gap-1">
+          <TabsList className="grid w-full md:w-auto grid-cols-4 md:grid-cols-7 md:inline-flex gap-1">
             <TabsTrigger value="overview" className="gap-2">
               <Icon name="LayoutDashboard" size={16} />
               <span className="hidden md:inline">Обзор</span>
+            </TabsTrigger>
+            <TabsTrigger value="forecast" className="gap-2">
+              <Icon name="TrendingUp" size={16} />
+              <span className="hidden md:inline">Прогноз</span>
             </TabsTrigger>
             <TabsTrigger value="map" className="gap-2">
               <Icon name="MapPinned" size={16} />
@@ -288,6 +293,16 @@ export default function Index() {
             />
           </TabsContent>
 
+          <TabsContent value="forecast">
+            <ForecastTab 
+              regions={filteredRegions}
+              selectedRegion={selectedRegion}
+              onSelectRegion={setSelectedRegion}
+              regionHistory={regionHistory}
+              historyLoading={historyLoading}
+            />
+          </TabsContent>
+
           <TabsContent value="map">
             <MapTab 
               regions={filteredRegions}
@@ -318,6 +333,7 @@ export default function Index() {
               onSelectedRegionsChange={setSelectedAnalyticsRegions}
               multiRegionData={multiRegionData}
               multiRegionLoading={multiRegionLoading}
+              selectedRegion={selectedRegion}
             />
           </TabsContent>
 

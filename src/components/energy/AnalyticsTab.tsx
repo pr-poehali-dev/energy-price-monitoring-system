@@ -15,6 +15,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import type { Region, PriceHistoryPoint } from './types';
 import { PERIOD_LABELS } from './types';
 import { exportMultiRegionHistoryToExcel, exportMultiRegionHistoryToCSV } from '@/utils/exportData';
+import PredictionCard from './PredictionCard';
 
 interface AnalyticsTabProps {
   regions: Region[];
@@ -28,6 +29,7 @@ interface AnalyticsTabProps {
   onSelectedRegionsChange: (regionIds: number[]) => void;
   multiRegionData: any[];
   multiRegionLoading: boolean;
+  selectedRegion?: Region | null;
 }
 
 export default function AnalyticsTab({ 
@@ -41,7 +43,8 @@ export default function AnalyticsTab({
   selectedRegions,
   onSelectedRegionsChange,
   multiRegionData,
-  multiRegionLoading
+  multiRegionLoading,
+  selectedRegion
 }: AnalyticsTabProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showRegionSelector, setShowRegionSelector] = useState(false);
@@ -335,6 +338,15 @@ export default function AnalyticsTab({
           </div>
         </Card>
       </div>
+
+      {selectedRegion && regionHistory.length >= 10 && (
+        <PredictionCard 
+          regionHistory={regionHistory}
+          regionName={selectedRegion.name}
+          currentPrice={selectedRegion.current_price}
+          daysAhead={90}
+        />
+      )}
     </div>
   );
 }
