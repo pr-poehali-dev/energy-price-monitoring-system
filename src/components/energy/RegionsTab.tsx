@@ -1,7 +1,9 @@
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import type { Region } from './types';
+import { useState } from 'react';
 
 interface RegionsTabProps {
   regions: Region[];
@@ -9,16 +11,81 @@ interface RegionsTabProps {
   onSelectRegion: (region: Region) => void;
 }
 
+type SortOption = 'name' | 'price-asc' | 'price-desc' | 'change-asc' | 'change-desc';
+
 export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: RegionsTabProps) {
+  const [sortBy, setSortBy] = useState<SortOption>('name');
+
+  const sortedRegions = [...regions].sort((a, b) => {
+    switch (sortBy) {
+      case 'name':
+        return a.name.localeCompare(b.name, 'ru');
+      case 'price-asc':
+        return a.current_price - b.current_price;
+      case 'price-desc':
+        return b.current_price - a.current_price;
+      case 'change-asc':
+        return a.change - b.change;
+      case 'change-desc':
+        return b.change - a.change;
+      default:
+        return 0;
+    }
+  });
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
       <Card className="lg:col-span-2 p-6">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-semibold">Все регионы</h3>
           <Badge variant="outline">{regions.length} регионов</Badge>
         </div>
+        
+        <div className="flex items-center gap-2 mb-4 flex-wrap">
+          <span className="text-sm text-muted-foreground">Сортировка:</span>
+          <Button 
+            size="sm" 
+            variant={sortBy === 'name' ? 'default' : 'outline'}
+            onClick={() => setSortBy('name')}
+          >
+            <Icon name="SortAsc" size={14} className="mr-1" />
+            По названию
+          </Button>
+          <Button 
+            size="sm" 
+            variant={sortBy === 'price-asc' ? 'default' : 'outline'}
+            onClick={() => setSortBy('price-asc')}
+          >
+            <Icon name="ArrowUp" size={14} className="mr-1" />
+            Дешевле
+          </Button>
+          <Button 
+            size="sm" 
+            variant={sortBy === 'price-desc' ? 'default' : 'outline'}
+            onClick={() => setSortBy('price-desc')}
+          >
+            <Icon name="ArrowDown" size={14} className="mr-1" />
+            Дороже
+          </Button>
+          <Button 
+            size="sm" 
+            variant={sortBy === 'change-desc' ? 'default' : 'outline'}
+            onClick={() => setSortBy('change-desc')}
+          >
+            <Icon name="TrendingUp" size={14} className="mr-1" />
+            Рост
+          </Button>
+          <Button 
+            size="sm" 
+            variant={sortBy === 'change-asc' ? 'default' : 'outline'}
+            onClick={() => setSortBy('change-asc')}
+          >
+            <Icon name="TrendingDown" size={14} className="mr-1" />
+            Снижение
+          </Button>
+        </div>
         <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2">
-          {regions.map((region) => (
+          {sortedRegions.map((region) => (
             <div
               key={region.id}
               onClick={() => onSelectRegion(region)}
