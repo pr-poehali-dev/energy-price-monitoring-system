@@ -35,7 +35,7 @@ export default function OverviewTab({
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={getChartData()}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" angle={-25} textAnchor="end" height={60} fontSize={11} />
                 <YAxis stroke="hsl(var(--muted-foreground))" />
                 <Tooltip 
                   contentStyle={{ 
@@ -44,7 +44,7 @@ export default function OverviewTab({
                     borderRadius: '8px'
                   }} 
                 />
-                <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={3} name="Цена (₽)" />
+                <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={3} name="Цена (₽)" dot={false} />
               </LineChart>
             </ResponsiveContainer>
           )}
