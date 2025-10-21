@@ -82,19 +82,21 @@ export default function Index() {
   
   useEffect(() => {
     if (regions.length > 0) {
-      fetchAllRegionsHistory(90);
+      fetchAllRegionsHistory(730);
     }
   }, [regions]);
 
   useEffect(() => {
     if (selectedRegion) {
-      fetchRegionHistory(selectedRegion.id, parseInt(filters.period));
+      const days = filters.period === 'all' ? 3650 : parseInt(filters.period);
+      fetchRegionHistory(selectedRegion.id, days);
     }
   }, [selectedRegion, filters.period]);
   
   useEffect(() => {
     if (selectedAnalyticsRegions.length > 0) {
-      fetchMultiRegionHistory(selectedAnalyticsRegions, parseInt(filters.period));
+      const days = filters.period === 'all' ? 3650 : parseInt(filters.period);
+      fetchMultiRegionHistory(selectedAnalyticsRegions, days);
     } else {
       setMultiRegionData([]);
     }
@@ -279,11 +281,14 @@ export default function Index() {
     const sorted = [...filteredByTariff]
       .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
     
-    const daysFilter = parseInt(filters.period);
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - daysFilter);
+    let filtered = sorted;
     
-    const filtered = sorted.filter(point => new Date(point.recorded_at) >= cutoffDate);
+    if (filters.period !== 'all') {
+      const daysFilter = parseInt(filters.period);
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - daysFilter);
+      filtered = sorted.filter(point => new Date(point.recorded_at) >= cutoffDate);
+    }
     const allDates = filtered.map(p => p.recorded_at);
     
     // Группируем по дате для мультитарифов

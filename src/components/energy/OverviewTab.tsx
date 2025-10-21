@@ -183,6 +183,17 @@ export default function OverviewTab({
               </LineChart>
             </ResponsiveContainer>
           )}
+          {!historyLoading && regionHistory.length > 0 && (
+            <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+              <Icon name="Database" size={16} />
+              <span>Загружено {regionHistory.length} точек данных</span>
+              {regionHistory.length > 0 && (
+                <span className="text-xs">
+                  ({new Date(regionHistory[0].recorded_at).toLocaleDateString('ru-RU')} - {new Date(regionHistory[regionHistory.length - 1].recorded_at).toLocaleDateString('ru-RU')})
+                </span>
+              )}
+            </div>
+          )}
         </Card>
 
         <Card className="p-6">

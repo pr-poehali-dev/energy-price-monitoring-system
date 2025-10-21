@@ -109,6 +109,8 @@ export default function FilterPanel({
               <SelectItem value="365">1 год</SelectItem>
               <SelectItem value="730">2 года</SelectItem>
               <SelectItem value="1095">3 года</SelectItem>
+              <SelectItem value="1825">5 лет</SelectItem>
+              <SelectItem value="all">Все данные</SelectItem>
             </SelectContent>
           </Select>
         </div>

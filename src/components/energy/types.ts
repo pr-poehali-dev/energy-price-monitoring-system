@@ -32,7 +32,7 @@ export interface PriceHistoryPoint {
 export interface Filters {
   zones: string[];
   searchQuery: string;
-  period: '30' | '90' | '180' | '365' | '730' | '1095';
+  period: PeriodOption;
   tariffType: 'all' | 'growing' | 'decreasing' | 'stable';
   tariffStructure: 'all' | 'single' | 'two_zone' | 'three_zone';
   timeZone?: 'all' | 'day' | 'night' | 'peak' | 'half_peak';
@@ -40,7 +40,7 @@ export interface Filters {
   priceRange: [number, number];
 }
 
-export type PeriodOption = '30' | '90' | '180' | '365' | '730' | '1095';
+export type PeriodOption = '30' | '90' | '180' | '365' | '730' | '1095' | '1825' | 'all';
 
 export const PERIOD_LABELS: Record<PeriodOption, string> = {
   '30': '1 месяц',
@@ -48,7 +48,9 @@ export const PERIOD_LABELS: Record<PeriodOption, string> = {
   '180': '6 месяцев',
   '365': '1 год',
   '730': '2 года',
-  '1095': '3 года'
+  '1095': '3 года',
+  '1825': '5 лет',
+  'all': 'Все данные'
 };
 
 export const API_URL = 'https://functions.poehali.dev/0959059f-a220-4107-9cca-d2f58650ddf8';

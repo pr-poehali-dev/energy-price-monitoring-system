@@ -166,11 +166,10 @@ export default function PredictionCard({
           <p className="text-lg font-semibold">{prediction.accuracy}%</p>
           <p className="text-xs text-muted-foreground mt-1">
             {getAccuracyDescription(prediction.accuracy, t)}
-            {historicalPeriodDays && (
-              <span className="block mt-1">
-                {language === 'ru' ? `На основе ${historicalPeriodDays} дней` : `Based on ${historicalPeriodDays} days`}
-              </span>
-            )}
+            <span className="block mt-1">
+              {language === 'ru' ? `${filteredHistory.length} точек данных` : `${filteredHistory.length} data points`}
+              {historicalPeriodDays && ` (${historicalPeriodDays} дней)`}
+            </span>
           </p>
         </div>
 
