@@ -38,7 +38,7 @@ export default function Index() {
   const [filters, setFilters] = useState<Filters>({
     zones: [],
     searchQuery: '',
-    period: '90',
+    period: 'all',
     tariffType: 'all',
     tariffStructure: 'all',
     timeZone: 'all',
@@ -330,7 +330,7 @@ export default function Index() {
     setFilters({
       zones: [],
       searchQuery: '',
-      period: '90',
+      period: 'all',
       tariffType: 'all',
       tariffStructure: 'all',
       timeZone: 'all',
