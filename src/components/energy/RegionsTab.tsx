@@ -1,6 +1,7 @@
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import type { Region } from './types';
 import { useState } from 'react';
@@ -15,8 +16,14 @@ type SortOption = 'name' | 'price-asc' | 'price-desc' | 'change-asc' | 'change-d
 
 export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: RegionsTabProps) {
   const [sortBy, setSortBy] = useState<SortOption>('name');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const sortedRegions = [...regions].sort((a, b) => {
+  const filteredAndSortedRegions = [...regions]
+    .filter(region => 
+      region.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      region.zone.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
     switch (sortBy) {
       case 'name':
         return a.name.localeCompare(b.name, 'ru');
@@ -38,7 +45,31 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
       <Card className="lg:col-span-2 p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-semibold">Все регионы</h3>
-          <Badge variant="outline">{regions.length} регионов</Badge>
+          <Badge variant="outline">
+            {filteredAndSortedRegions.length} из {regions.length}
+          </Badge>
+        </div>
+        
+        <div className="mb-4">
+          <div className="relative">
+            <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input 
+              placeholder="Поиск региона..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+            {searchQuery && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+              >
+                <Icon name="X" size={16} />
+              </Button>
+            )}
+          </div>
         </div>
         
         <div className="flex items-center gap-2 mb-4 flex-wrap">
@@ -85,7 +116,8 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
           </Button>
         </div>
         <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2">
-          {sortedRegions.map((region) => (
+          {filteredAndSortedRegions.length > 0 ? (
+            filteredAndSortedRegions.map((region) => (
             <div
               key={region.id}
               onClick={() => onSelectRegion(region)}
@@ -118,7 +150,14 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
                 </div>
               </div>
             </div>
-          ))}
+          ))
+          ) : (
+            <div className="text-center py-12">
+              <Icon name="Search" size={48} className="mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">Регионы не найдены</p>
+              <p className="text-sm text-muted-foreground mt-1">Попробуйте изменить запрос</p>
+            </div>
+          )}
         </div>
       </Card>
 
