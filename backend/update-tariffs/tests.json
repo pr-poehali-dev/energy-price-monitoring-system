@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "Update tariffs in database",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "tariffs": [
+          {
+            "region_name": "Москва",
+            "tariff_rub_per_kwh": 7.87,
+            "valid_from": "2025-01-01",
+            "source": "test"
+          }
+        ]
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Handle OPTIONS for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}

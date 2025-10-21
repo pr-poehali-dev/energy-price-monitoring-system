@@ -1,4 +1,7 @@
 {
+  "sync-official-tariffs": "https://functions.poehali.dev/1d38596d-371d-453b-91cd-80200e4d0a2b",
+  "parse-tariffs": "https://functions.poehali.dev/7eb79ab5-35a7-430b-b9fe-b2a4afe7f444",
+  "update-tariffs": "https://functions.poehali.dev/fe51c49b-30dd-46b7-81d5-d9b139d4b9e2",
   "load-tariffs": "https://functions.poehali.dev/d45fad1d-6343-4930-9c0c-2f691378405f",
   "db-manage": "https://functions.poehali.dev/9a386a41-ad70-4d41-b906-6ba0b02f206c",
   "price-data": "https://functions.poehali.dev/0959059f-a220-4107-9cca-d2f58650ddf8"
