@@ -16,10 +16,11 @@ export function useEnergyData(language: 'ru' | 'en') {
   const [multiRegionLoading, setMultiRegionLoading] = useState(false);
   const [allRegionsHistory, setAllRegionsHistory] = useState<Map<number, PriceHistoryPoint[]>>(new Map());
 
-  const fetchData = async () => {
+  const fetchData = async (year?: string) => {
     try {
       setLoading(true);
-      const response = await fetch(API_URL);
+      const url = year && year !== 'all' ? `${API_URL}?year=${year}` : API_URL;
+      const response = await fetch(url);
       const data = await response.json();
       
       const formattedRegions = data.regions
@@ -164,6 +165,10 @@ export function useEnergyData(language: 'ru' | 'en') {
   useEffect(() => {
     fetchData();
   }, []);
+  
+  const refetchData = (year?: string) => {
+    fetchData(year);
+  };
 
   useEffect(() => {
     if (regions.length > 0) {
@@ -186,6 +191,7 @@ export function useEnergyData(language: 'ru' | 'en') {
     multiRegionLoading,
     allRegionsHistory,
     fetchRegionHistory,
+    refetchData,
     fetchMultiRegionHistory
   };
 }

@@ -35,7 +35,8 @@ export default function Index() {
     multiRegionLoading,
     allRegionsHistory,
     fetchRegionHistory,
-    fetchMultiRegionHistory
+    fetchMultiRegionHistory,
+    refetchData
   } = useEnergyData(language as 'ru' | 'en');
 
   const {
@@ -52,6 +53,12 @@ export default function Index() {
       fetchRegionHistory(selectedRegion.id, days);
     }
   }, [selectedRegion, filters.period]);
+  
+  useEffect(() => {
+    if (filters.year) {
+      refetchData(filters.year);
+    }
+  }, [filters.year]);
 
   useEffect(() => {
     if (selectedAnalyticsRegions.length > 0) {

@@ -101,6 +101,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if method == 'GET':
         params = event.get('queryStringParameters') or {}
         region_id = params.get('region_id')
+        year = params.get('year')
         days = int(params.get('days', '180'))
         
         if region_id:
@@ -159,19 +160,24 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
-        cursor.execute('''
+        year_filter = ''
+        if year:
+            year_filter = f'AND year = {year}'
+        
+        cursor.execute(f'''
             SELECT 
                 r.id,
                 r.name,
                 r.zone,
                 r.population,
                 ph.price as current_price,
-                ph.recorded_at as last_updated
+                ph.recorded_at as last_updated,
+                ph.year
             FROM t_p67469144_energy_price_monitor.regions r
             LEFT JOIN LATERAL (
-                SELECT price, recorded_at
+                SELECT price, recorded_at, year
                 FROM t_p67469144_energy_price_monitor.price_history
-                WHERE region_id = r.id AND source != 'SYNTHETIC_OLD_DATA'
+                WHERE region_id = r.id {year_filter}
                 ORDER BY recorded_at DESC
                 LIMIT 1
             ) ph ON true
@@ -181,13 +187,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         regions = [dict(row) for row in cursor.fetchall()]
         
         for region in regions:
-            cursor.execute('''
-                SELECT price 
-                FROM t_p67469144_energy_price_monitor.price_history 
-                WHERE region_id = %s AND source != 'SYNTHETIC_OLD_DATA'
-                ORDER BY recorded_at ASC 
-                LIMIT 1
-            ''', (region['id'],))
+            if year:
+                cursor.execute(f'''
+                    SELECT price 
+                    FROM t_p67469144_energy_price_monitor.price_history 
+                    WHERE region_id = %s AND year = {year}
+                    ORDER BY recorded_at ASC 
+                    LIMIT 1
+                ''', (region['id'],))
+            else:
+                cursor.execute('''
+                    SELECT price 
+                    FROM t_p67469144_energy_price_monitor.price_history 
+                    WHERE region_id = %s
+                    ORDER BY recorded_at ASC 
+                    LIMIT 1
+                ''', (region['id'],))
             
             first_price_row = cursor.fetchone()
             if first_price_row and region['current_price']:
@@ -198,21 +213,34 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             else:
                 region['change'] = 0
         
-        cursor.execute('''
-            SELECT 
-                r.zone,
-                AVG(ph.price) as avg_price,
-                COUNT(DISTINCT r.id) as region_count
-            FROM t_p67469144_energy_price_monitor.regions r
-            JOIN t_p67469144_energy_price_monitor.price_history ph ON r.id = ph.region_id
-            WHERE ph.source != 'SYNTHETIC_OLD_DATA' AND ph.recorded_at = (
-                SELECT MAX(recorded_at) 
-                FROM t_p67469144_energy_price_monitor.price_history 
-                WHERE region_id = r.id AND source != 'SYNTHETIC_OLD_DATA'
-            )
-            GROUP BY r.zone
-            ORDER BY avg_price DESC
-        ''')
+        if year:
+            cursor.execute(f'''
+                SELECT 
+                    r.zone,
+                    AVG(ph.price) as avg_price,
+                    COUNT(DISTINCT r.id) as region_count
+                FROM t_p67469144_energy_price_monitor.regions r
+                JOIN t_p67469144_energy_price_monitor.price_history ph ON r.id = ph.region_id
+                WHERE ph.year = {year}
+                GROUP BY r.zone
+                ORDER BY avg_price DESC
+            ''')
+        else:
+            cursor.execute('''
+                SELECT 
+                    r.zone,
+                    AVG(ph.price) as avg_price,
+                    COUNT(DISTINCT r.id) as region_count
+                FROM t_p67469144_energy_price_monitor.regions r
+                JOIN t_p67469144_energy_price_monitor.price_history ph ON r.id = ph.region_id
+                WHERE ph.recorded_at = (
+                    SELECT MAX(recorded_at) 
+                    FROM t_p67469144_energy_price_monitor.price_history 
+                    WHERE region_id = r.id
+                )
+                GROUP BY r.zone
+                ORDER BY avg_price DESC
+            ''')
         
         zones = [dict(row) for row in cursor.fetchall()]
         

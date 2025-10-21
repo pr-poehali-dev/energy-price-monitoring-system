@@ -33,6 +33,7 @@ export interface Filters {
   zones: string[];
   searchQuery: string;
   period: PeriodOption;
+  year?: string;
   tariffType: 'all' | 'growing' | 'decreasing' | 'stable';
   tariffStructure: 'all' | 'single' | 'two_zone' | 'three_zone';
   timeZone?: 'all' | 'day' | 'night' | 'peak' | 'half_peak';

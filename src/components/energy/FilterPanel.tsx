@@ -43,7 +43,8 @@ export default function FilterPanel({
 
   const activeFiltersCount = 
     filters.zones.length + 
-    (filters.searchQuery ? 1 : 0) + 
+    (filters.searchQuery ? 1 : 0) +
+    (filters.year && filters.year !== 'all' ? 1 : 0) +
     (filters.tariffType !== 'all' ? 1 : 0) +
     (filters.tariffStructure !== 'all' ? 1 : 0) +
     (filters.timeZone && filters.timeZone !== 'all' ? 1 : 0) +
@@ -99,20 +100,19 @@ export default function FilterPanel({
         </div>
 
         <div>
-          <label className="text-sm font-medium mb-2 block">{t('filters.periodAnalysis')}</label>
-          <Select value={filters.period} onValueChange={(value: any) => updateFilter('period', value)}>
+          <label className="text-sm font-medium mb-2 block">Год данных</label>
+          <Select value={filters.year || 'all'} onValueChange={(value: any) => updateFilter('year', value)}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="30">{t('period.oneMonth')}</SelectItem>
-              <SelectItem value="90">{t('period.threeMonths')}</SelectItem>
-              <SelectItem value="180">{t('period.sixMonths')}</SelectItem>
-              <SelectItem value="365">{t('period.oneYear')}</SelectItem>
-              <SelectItem value="730">{t('period.twoYears')}</SelectItem>
-              <SelectItem value="1095">{t('period.threeYears')}</SelectItem>
-              <SelectItem value="1825">{t('period.fiveYears')}</SelectItem>
-              <SelectItem value="all">{t('period.all')}</SelectItem>
+              <SelectItem value="all">Все годы</SelectItem>
+              <SelectItem value="2025">2025 год</SelectItem>
+              <SelectItem value="2024">2024 год</SelectItem>
+              <SelectItem value="2023">2023 год</SelectItem>
+              <SelectItem value="2022">2022 год</SelectItem>
+              <SelectItem value="2021">2021 год</SelectItem>
+              <SelectItem value="2020">2020 год</SelectItem>
             </SelectContent>
           </Select>
         </div>
