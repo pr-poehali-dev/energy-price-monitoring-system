@@ -77,7 +77,11 @@ export const predictPrices = (
   else trend = 'falling';
 
   const rSquared = calculateRSquared(xValues, yValues, slope, intercept);
-  const accuracy = Math.round(rSquared * 100);
+  const baseAccuracy = rSquared * 100;
+  
+  // Точность уменьшается с увеличением периода прогноза
+  const decayFactor = Math.exp(-daysAhead / 180); // Экспоненциальное затухание
+  const accuracy = Math.round(baseAccuracy * decayFactor);
 
   return {
     predictions,
