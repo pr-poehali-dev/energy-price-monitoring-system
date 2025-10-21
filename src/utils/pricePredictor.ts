@@ -132,26 +132,31 @@ const calculateAverageDaysBetween = (history: PriceHistoryPoint[]): number => {
   return Math.max(1, Math.round(totalDays / (sortedHistory.length - 1)));
 };
 
-export const getTrendDescription = (trend: 'rising' | 'falling' | 'stable', strength: number): string => {
+export const getTrendDescription = (
+  trend: 'rising' | 'falling' | 'stable', 
+  strength: number,
+  t: (key: string) => string
+): string => {
   if (trend === 'stable') {
-    return 'Цены стабильны';
+    return t('trend.stable');
   }
   
-  let intensityWord = '';
-  if (strength < 1) intensityWord = 'незначительно';
-  else if (strength < 3) intensityWord = 'умеренно';
-  else if (strength < 5) intensityWord = 'заметно';
-  else intensityWord = 'значительно';
-  
-  return trend === 'rising' 
-    ? `Цены ${intensityWord} растут` 
-    : `Цены ${intensityWord} снижаются`;
+  if (trend === 'rising') {
+    if (strength < 1) return t('trend.risingSlightly');
+    if (strength < 3) return t('trend.risingModerately');
+    if (strength < 5) return t('trend.risingNoticeably');
+    return t('trend.risingSignificantly');
+  } else {
+    if (strength < 1) return t('trend.fallingSlightly');
+    if (strength < 3) return t('trend.fallingModerately');
+    if (strength < 5) return t('trend.fallingNoticeably');
+    return t('trend.fallingSignificantly');
+  }
 };
 
-export const getAccuracyDescription = (accuracy: number): string => {
-  if (accuracy >= 85) return 'Очень высокая точность';
-  if (accuracy >= 70) return 'Высокая точность';
-  if (accuracy >= 50) return 'Средняя точность';
-  if (accuracy >= 30) return 'Низкая точность';
-  return 'Очень низкая точность';
+export const getAccuracyDescription = (accuracy: number, t: (key: string) => string): string => {
+  if (accuracy >= 85) return t('prediction.veryHighAccuracy');
+  if (accuracy >= 70) return t('prediction.highAccuracy');
+  if (accuracy >= 50) return t('prediction.mediumAccuracy');
+  return t('prediction.lowAccuracy');
 };

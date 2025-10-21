@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { predictPrices, getTrendDescription, getAccuracyDescription } from '@/utils/pricePredictor';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { PriceHistoryPoint } from './types';
 
 interface PredictionCardProps {
@@ -20,18 +21,19 @@ export default function PredictionCard({
   currentPrice,
   daysAhead: initialDaysAhead = 90 
 }: PredictionCardProps) {
+  const { t, language } = useLanguage();
   const [daysAhead, setDaysAhead] = useState(initialDaysAhead);
-  if (regionHistory.length < 10) {
+  if (regionHistory.length < 3) {
     return (
       <Card className="p-6">
         <div className="flex items-center gap-3 mb-4">
           <Icon name="TrendingUp" className="text-chart-3" size={24} />
-          <h3 className="text-xl font-semibold">Прогноз цен</h3>
+          <h3 className="text-xl font-semibold">{t('prediction.title')}</h3>
         </div>
         <div className="text-center py-8 text-muted-foreground">
           <Icon name="AlertCircle" className="mx-auto mb-3" size={48} />
-          <p>Недостаточно данных для прогноза</p>
-          <p className="text-sm mt-2">Требуется минимум 10 точек данных</p>
+          <p>{t('prediction.insufficientData')}</p>
+          <p className="text-sm mt-2">{t('prediction.minDataPoints')}</p>
         </div>
       </Card>
     );
@@ -42,7 +44,7 @@ export default function PredictionCard({
   const historicalData = regionHistory
     .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime())
     .map(point => ({
-      date: new Date(point.recorded_at).toLocaleDateString('ru-RU', { 
+      date: new Date(point.recorded_at).toLocaleDateString(language === 'ru' ? 'ru-RU' : 'en-US', { 
         day: '2-digit', 
         month: 'short' 
       }),
@@ -80,35 +82,42 @@ export default function PredictionCard({
 
   return (
     <Card className="p-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div className="flex items-center gap-3">
           <Icon name="TrendingUp" className="text-chart-3" size={24} />
           <div>
-            <h3 className="text-xl font-semibold">Прогноз цен</h3>
+            <h3 className="text-xl font-semibold">{t('prediction.title')}</h3>
             <p className="text-sm text-muted-foreground">{regionName}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             size="sm"
             variant={daysAhead === 30 ? 'default' : 'outline'}
             onClick={() => setDaysAhead(30)}
           >
-            30 дней
+            {t('prediction.period.oneMonth')}
           </Button>
           <Button
             size="sm"
             variant={daysAhead === 90 ? 'default' : 'outline'}
             onClick={() => setDaysAhead(90)}
           >
-            90 дней
+            {t('prediction.period.threeMonths')}
           </Button>
           <Button
             size="sm"
             variant={daysAhead === 180 ? 'default' : 'outline'}
             onClick={() => setDaysAhead(180)}
           >
-            180 дней
+            {t('prediction.period.sixMonths')}
+          </Button>
+          <Button
+            size="sm"
+            variant={daysAhead === 365 ? 'default' : 'outline'}
+            onClick={() => setDaysAhead(365)}
+          >
+            {t('prediction.period.oneYear')}
           </Button>
         </div>
       </div>
@@ -117,31 +126,33 @@ export default function PredictionCard({
         <div className="p-4 rounded-lg bg-muted/50">
           <div className="flex items-center gap-2 mb-2">
             <Icon name={getTrendIcon()} className={getTrendColor()} size={20} />
-            <p className="text-sm text-muted-foreground">Тренд</p>
+            <p className="text-sm text-muted-foreground">{t('prediction.trend')}</p>
           </div>
-          <p className="text-lg font-semibold">{getTrendDescription(prediction.trend, prediction.trendStrength)}</p>
-          <p className="text-xs text-muted-foreground mt-1">Сила: {prediction.trendStrength}%</p>
+          <p className="text-lg font-semibold">{getTrendDescription(prediction.trend, prediction.trendStrength, t)}</p>
+          <p className="text-xs text-muted-foreground mt-1">{t('prediction.strength')}: {prediction.trendStrength}%</p>
         </div>
 
         <div className="p-4 rounded-lg bg-muted/50">
           <div className="flex items-center gap-2 mb-2">
             <Icon name="Target" className="text-primary" size={20} />
-            <p className="text-sm text-muted-foreground">Точность модели</p>
+            <p className="text-sm text-muted-foreground">{t('prediction.modelAccuracy')}</p>
           </div>
           <p className="text-lg font-semibold">{prediction.accuracy}%</p>
-          <p className="text-xs text-muted-foreground mt-1">{getAccuracyDescription(prediction.accuracy)}</p>
+          <p className="text-xs text-muted-foreground mt-1">{getAccuracyDescription(prediction.accuracy, t)}</p>
         </div>
 
         <div className="p-4 rounded-lg bg-muted/50">
           <div className="flex items-center gap-2 mb-2">
             <Icon name="Calendar" className="text-secondary" size={20} />
-            <p className="text-sm text-muted-foreground">Прогноз через {daysAhead} дней</p>
+            <p className="text-sm text-muted-foreground">
+              {t('prediction.forecastIn')} {daysAhead} {t('prediction.days')}
+            </p>
           </div>
           <p className="text-lg font-semibold font-mono">
             {lastPrediction?.predictedPrice.toFixed(2)} ₽
           </p>
           <p className={`text-xs mt-1 ${priceChange > 0 ? 'text-destructive' : 'text-secondary'}`}>
-            {priceChange > 0 ? '+' : ''}{priceChange.toFixed(2)}% от текущей
+            {priceChange > 0 ? '+' : ''}{priceChange.toFixed(2)}% {t('prediction.fromCurrent')}
           </p>
         </div>
       </div>
@@ -174,14 +185,14 @@ export default function PredictionCard({
                     <p className="text-sm font-semibold mb-2">{data.date}</p>
                     {data.actual !== null && (
                       <p className="text-sm">
-                        <span className="text-muted-foreground">Фактическая: </span>
+                        <span className="text-muted-foreground">{t('prediction.actual')}: </span>
                         <span className="font-mono font-semibold">{data.actual.toFixed(2)} ₽</span>
                       </p>
                     )}
                     {data.predicted !== null && (
                       <>
                         <p className="text-sm">
-                          <span className="text-muted-foreground">Прогноз: </span>
+                          <span className="text-muted-foreground">{t('prediction.forecast')}: </span>
                           <span className="font-mono font-semibold">{data.predicted.toFixed(2)} ₽</span>
                         </p>
                         {data.confidence && (
@@ -189,9 +200,9 @@ export default function PredictionCard({
                             variant="outline" 
                             className="mt-2 text-xs"
                           >
-                            {data.confidence === 'high' ? 'Высокая точность' : 
-                             data.confidence === 'medium' ? 'Средняя точность' : 
-                             'Низкая точность'}
+                            {data.confidence === 'high' ? t('prediction.confidence.high') : 
+                             data.confidence === 'medium' ? t('prediction.confidence.medium') : 
+                             t('prediction.confidence.low')}
                           </Badge>
                         )}
                       </>
@@ -206,14 +217,14 @@ export default function PredictionCard({
             x={historicalData[historicalData.length - 1]?.date} 
             stroke="hsl(var(--muted-foreground))" 
             strokeDasharray="3 3"
-            label={{ value: 'Сегодня', position: 'top', fill: 'hsl(var(--muted-foreground))' }}
+            label={{ value: t('prediction.today'), position: 'top', fill: 'hsl(var(--muted-foreground))' }}
           />
           <Line 
             type="monotone" 
             dataKey="actual" 
             stroke="hsl(var(--chart-1))" 
             strokeWidth={2} 
-            name="Фактическая цена" 
+            name={t('prediction.actualPrice')} 
             dot={false}
             connectNulls={false}
           />
@@ -223,7 +234,7 @@ export default function PredictionCard({
             stroke="hsl(var(--chart-3))" 
             strokeWidth={2} 
             strokeDasharray="5 5"
-            name="Прогноз" 
+            name={t('prediction.forecast')} 
             dot={false}
             connectNulls={false}
           />
