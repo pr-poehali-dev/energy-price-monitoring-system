@@ -33,6 +33,59 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(database_url)
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     
+    if method == 'POST':
+        body_data = json.loads(event.get('body', '{}'))
+        action = body_data.get('action')
+        
+        if action == 'get_regions':
+            cursor.execute('''
+                SELECT id, name, zone, population
+                FROM t_p67469144_energy_price_monitor.regions
+                ORDER BY name
+            ''')
+            regions = [dict(row) for row in cursor.fetchall()]
+            
+            cursor.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'regions': regions}),
+                'isBase64Encoded': False
+            }
+        
+        if action == 'add_price':
+            region_id = body_data.get('region_id')
+            price = body_data.get('price')
+            date = body_data.get('date')
+            tariff_type = body_data.get('tariff_type', 'single')
+            time_zone = body_data.get('time_zone')
+            consumer_type = body_data.get('consumer_type', 'standard')
+            
+            cursor.execute('''
+                INSERT INTO t_p67469144_energy_price_monitor.price_history 
+                (region_id, price, recorded_at, source, tariff_type, time_zone, consumer_type)
+                VALUES (%s, %s, %s, 'IMPORT_2024', %s, %s, %s)
+            ''', (region_id, price, date, tariff_type, time_zone, consumer_type))
+            
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'success': True}),
+                'isBase64Encoded': False
+            }
+    
     if method == 'GET':
         params = event.get('queryStringParameters') or {}
         region_id = params.get('region_id')
