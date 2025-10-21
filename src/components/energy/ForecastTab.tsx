@@ -7,6 +7,7 @@ import Icon from '@/components/ui/icon';
 import PredictionCard from './PredictionCard';
 import { predictPrices } from '@/utils/pricePredictor';
 import type { Region, PriceHistoryPoint } from './types';
+import { useTranslateNames } from '@/hooks/useTranslateNames';
 
 interface ForecastTabProps {
   regions: Region[];
@@ -25,6 +26,7 @@ export default function ForecastTab({
   historyLoading,
   allRegionsHistory
 }: ForecastTabProps) {
+  const { translateRegionName } = useTranslateNames();
   const [daysAhead] = useState(90);
   const [selectedTariff, setSelectedTariff] = useState<'all' | 'single' | 'two_zone' | 'three_zone'>('all');
   const [selectedTimeZone, setSelectedTimeZone] = useState<'all' | 'day' | 'night' | 'peak' | 'half_peak'>('all');
@@ -113,7 +115,7 @@ export default function ForecastTab({
               <SelectContent>
                 {regions.map((region) => (
                   <SelectItem key={region.id} value={region.id.toString()}>
-                    {region.name}
+                    {translateRegionName(region.name)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -177,7 +179,7 @@ export default function ForecastTab({
         <>
           <PredictionCard
             regionHistory={regionHistory}
-            regionName={selectedRegion.name}
+            regionName={translateRegionName(selectedRegion.name)}
             currentPrice={selectedRegion.current_price}
             daysAhead={daysAhead}
             tariffType={selectedTariff}
@@ -207,7 +209,7 @@ export default function ForecastTab({
                         {idx + 1}
                       </div>
                       <div>
-                        <p className="font-medium text-sm">{item.region.name}</p>
+                        <p className="font-medium text-sm">{translateRegionName(item.region.name)}</p>
                         <p className="text-xs text-muted-foreground">
                           Текущая: {item.currentPrice.toFixed(2)} ₽
                         </p>
@@ -252,7 +254,7 @@ export default function ForecastTab({
                           {idx + 1}
                         </div>
                         <div>
-                          <p className="font-medium text-sm">{item.region.name}</p>
+                          <p className="font-medium text-sm">{translateRegionName(item.region.name)}</p>
                           <p className="text-xs text-muted-foreground">
                             Текущая: {item.currentPrice.toFixed(2)} ₽
                           </p>

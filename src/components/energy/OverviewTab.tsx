@@ -14,6 +14,8 @@ import type { Region, ZoneStat, PriceHistoryPoint, PeriodOption } from './types'
 import { PERIOD_LABELS } from './types';
 import { exportHistoryToExcel, exportHistoryToCSV, exportRegionsToExcel, exportRegionsToCSV } from '@/utils/exportData';
 import PredictionCard from './PredictionCard';
+import { useTranslateNames } from '@/hooks/useTranslateNames';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface OverviewTabProps {
   regions: Region[];
@@ -42,6 +44,8 @@ export default function OverviewTab({
   tariffStructure = 'all',
   consumerType = 'all'
 }: OverviewTabProps) {
+  const { translateRegionName, translateZoneName } = useTranslateNames();
+  const { t } = useLanguage();
   const getTariffLabel = () => {
     const parts: string[] = [];
     
@@ -117,7 +121,7 @@ export default function OverviewTab({
                 <SelectContent>
                   {regions.map((region) => (
                     <SelectItem key={region.id} value={region.id.toString()}>
-                      {region.name}
+                      {translateRegionName(region.name)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -202,7 +206,7 @@ export default function OverviewTab({
             <Icon name="BarChart3" className="text-secondary" size={20} />
           </div>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={zoneStats.map(z => ({ zone: z.zone, avgPrice: z.avg_price }))}>
+            <BarChart data={zoneStats.map(z => ({ zone: translateZoneName(z.zone), avgPrice: z.avg_price }))}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="zone" stroke="hsl(var(--muted-foreground))" angle={-15} textAnchor="end" height={80} fontSize={12} />
               <YAxis stroke="hsl(var(--muted-foreground))" />
@@ -213,7 +217,7 @@ export default function OverviewTab({
                   borderRadius: '8px'
                 }} 
               />
-              <Bar dataKey="avgPrice" fill="hsl(var(--secondary))" radius={[8, 8, 0, 0]} name="Средняя цена (₽/кВт⋅ч)" />
+              <Bar dataKey="avgPrice" fill="hsl(var(--secondary))" radius={[8, 8, 0, 0]} name={t('compare.avgPrice')} />
             </BarChart>
           </ResponsiveContainer>
         </Card>
@@ -249,8 +253,8 @@ export default function OverviewTab({
                 <div className="flex items-center gap-4">
                   <Icon name="MapPin" className="text-primary" size={20} />
                   <div>
-                    <p className="font-medium">{region.name}</p>
-                    <p className="text-sm text-muted-foreground">{region.zone}</p>
+                    <p className="font-medium">{translateRegionName(region.name)}</p>
+                    <p className="text-sm text-muted-foreground">{translateZoneName(region.zone)}</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -268,7 +272,7 @@ export default function OverviewTab({
       {selectedRegion && regionHistory.length >= 10 && (
         <PredictionCard 
           regionHistory={regionHistory}
-          regionName={selectedRegion.name}
+          regionName={translateRegionName(selectedRegion.name)}
           currentPrice={selectedRegion.current_price}
           daysAhead={90}
           historicalPeriodDays={parseInt(period)}
