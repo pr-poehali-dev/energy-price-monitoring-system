@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -49,6 +49,10 @@ export default function PredictionCard({
     filteredHistory = filteredHistory.filter(point => point.time_zone === timeZone);
   }
   
+  const prediction = useMemo(() => {
+    return predictPrices(filteredHistory, daysAhead);
+  }, [filteredHistory, daysAhead]);
+  
   if (filteredHistory.length < 10) {
     return (
       <Card className="p-6">
@@ -64,8 +68,6 @@ export default function PredictionCard({
       </Card>
     );
   }
-
-  const prediction = predictPrices(filteredHistory, daysAhead);
   
   const sortedHistory = filteredHistory
     .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
