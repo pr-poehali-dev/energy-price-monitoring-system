@@ -12,7 +12,7 @@ export const formatDateForChart = (
   // Если нет других дат для сравнения, показываем с годом
   if (allDates.length === 0) {
     return currentDate.toLocaleDateString(
-      language === 'ru' ? 'ru-RU' : 'en-US',
+      language === 'en' ? 'en-GB' : 'ru-RU',
       { day: '2-digit', month: 'short', year: 'numeric' }
     );
   }
@@ -30,12 +30,12 @@ export const formatDateForChart = (
   
   if (showYear) {
     return currentDate.toLocaleDateString(
-      language === 'ru' ? 'ru-RU' : 'en-US',
+      language === 'en' ? 'en-GB' : 'ru-RU',
       { day: '2-digit', month: 'short', year: 'numeric' }
     );
   } else {
     return currentDate.toLocaleDateString(
-      language === 'ru' ? 'ru-RU' : 'en-US',
+      language === 'en' ? 'en-GB' : 'ru-RU',
       { day: '2-digit', month: 'short' }
     );
   }

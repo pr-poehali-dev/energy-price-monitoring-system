@@ -358,7 +358,7 @@ export default function Index() {
           <div className="flex items-center gap-3">
             <Badge variant="outline" className="px-4 py-2 text-sm font-mono">
               <Icon name="Calendar" size={16} className="mr-2" />
-              {t('app.updated')}: {new Date().toLocaleDateString(language === 'ru' ? 'ru-RU' : 'en-US')}
+              {t('app.updated')}: {new Date().toLocaleDateString(language === 'en' ? 'en-GB' : 'ru-RU')}
             </Badge>
             <LanguageSwitcher />
           </div>

@@ -45,7 +45,7 @@ export default function OverviewTab({
   consumerType = 'all'
 }: OverviewTabProps) {
   const { translateRegionName, translateZoneName } = useTranslateNames();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const getTariffLabel = () => {
     const parts: string[] = [];
     
@@ -87,7 +87,7 @@ export default function OverviewTab({
           <div className="flex flex-col gap-4 mb-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-semibold">Динамика цен по регионам</h3>
+                <h3 className="text-xl font-semibold">{t('overview.priceDynamics')}</h3>
                 {(tariffStructure !== 'all' || consumerType !== 'all') && (
                   <Badge variant="secondary" className="mt-1">
                     {getTariffLabel()}
@@ -98,17 +98,17 @@ export default function OverviewTab({
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" disabled={historyLoading || regionHistory.length === 0}>
                     <Icon name="Download" size={16} className="mr-2" />
-                    Экспорт
+                    {t('export.button')}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => selectedRegion && exportHistoryToExcel(regionHistory, selectedRegion.name)}>
                     <Icon name="FileSpreadsheet" size={16} className="mr-2" />
-                    Excel (.xlsx)
+                    {t('export.excel')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => selectedRegion && exportHistoryToCSV(regionHistory, selectedRegion.name)}>
                     <Icon name="FileText" size={16} className="mr-2" />
-                    CSV (.csv)
+                    {t('export.csv')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -116,7 +116,7 @@ export default function OverviewTab({
             <div className="flex flex-wrap items-center gap-3">
               <Select value={selectedRegion?.id.toString()} onValueChange={(value) => onRegionChange(parseInt(value))}>
                 <SelectTrigger className="w-[250px]">
-                  <SelectValue placeholder="Выберите регион" />
+                  <SelectValue placeholder={t('overview.selectRegion')} />
                 </SelectTrigger>
                 <SelectContent>
                   {regions.map((region) => (
@@ -168,21 +168,21 @@ export default function OverviewTab({
                 
                 {tariffStructure === 'two_zone' && (
                   <>
-                    <Line type="monotone" dataKey="day" stroke="hsl(var(--chart-1))" strokeWidth={2} name="День" dot={false} />
-                    <Line type="monotone" dataKey="night" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Ночь" dot={false} />
+                    <Line type="monotone" dataKey="day" stroke="hsl(var(--chart-1))" strokeWidth={2} name={t('tariff.day')} dot={false} />
+                    <Line type="monotone" dataKey="night" stroke="hsl(var(--chart-2))" strokeWidth={2} name={t('tariff.night')} dot={false} />
                   </>
                 )}
                 
                 {tariffStructure === 'three_zone' && (
                   <>
-                    <Line type="monotone" dataKey="peak" stroke="hsl(var(--chart-3))" strokeWidth={2} name="Пик" dot={false} />
-                    <Line type="monotone" dataKey="half_peak" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Полупик" dot={false} />
-                    <Line type="monotone" dataKey="night" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Ночь" dot={false} />
+                    <Line type="monotone" dataKey="peak" stroke="hsl(var(--chart-3))" strokeWidth={2} name={t('tariff.peak')} dot={false} />
+                    <Line type="monotone" dataKey="half_peak" stroke="hsl(var(--chart-1))" strokeWidth={2} name={t('tariff.halfPeak')} dot={false} />
+                    <Line type="monotone" dataKey="night" stroke="hsl(var(--chart-2))" strokeWidth={2} name={t('tariff.night')} dot={false} />
                   </>
                 )}
                 
                 {tariffStructure === 'all' && (
-                  <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Цена" dot={false} />
+                  <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={2} name={t('tariff.price')} dot={false} />
                 )}
               </LineChart>
             </ResponsiveContainer>
@@ -193,7 +193,7 @@ export default function OverviewTab({
               <span>Загружено {regionHistory.length} точек данных</span>
               {regionHistory.length > 0 && (
                 <span className="text-xs">
-                  ({new Date(regionHistory[0].recorded_at).toLocaleDateString('ru-RU')} - {new Date(regionHistory[regionHistory.length - 1].recorded_at).toLocaleDateString('ru-RU')})
+                  ({new Date(regionHistory[0].recorded_at).toLocaleDateString(language === 'en' ? 'en-GB' : 'ru-RU')} - {new Date(regionHistory[regionHistory.length - 1].recorded_at).toLocaleDateString(language === 'en' ? 'en-GB' : 'ru-RU')})
                 </span>
               )}
             </div>
@@ -202,7 +202,7 @@ export default function OverviewTab({
 
         <Card className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold">Средние цены по округам</h3>
+            <h3 className="text-xl font-semibold">{t('overview.avgPricesByZone')}</h3>
             <Icon name="BarChart3" className="text-secondary" size={20} />
           </div>
           <ResponsiveContainer width="100%" height={300}>
@@ -225,22 +225,22 @@ export default function OverviewTab({
 
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-semibold">Все регионы по изменению цены</h3>
+          <h3 className="text-xl font-semibold">{t('overview.allRegionsByChange')}</h3>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <Icon name="Download" size={16} className="mr-2" />
-                Экспорт
+                {t('export.button')}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => exportRegionsToExcel(regions)}>
                 <Icon name="FileSpreadsheet" size={16} className="mr-2" />
-                Excel (.xlsx)
+                {t('export.excel')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => exportRegionsToCSV(regions)}>
                 <Icon name="FileText" size={16} className="mr-2" />
-                CSV (.csv)
+                {t('export.csv')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -131,6 +131,12 @@ const translations: Record<Language, Record<string, string>> = {
     'common.date': 'Дата',
     'common.strength': 'Сила',
     
+    'tariff.day': 'День',
+    'tariff.night': 'Ночь',
+    'tariff.peak': 'Пик',
+    'tariff.halfPeak': 'Полупик',
+    'tariff.price': 'Цена',
+    
     'prediction.title': 'Прогноз цен',
     'prediction.insufficientData': 'Недостаточно данных для прогноза',
     'prediction.minDataPoints': 'Требуется минимум 10 точек данных',
@@ -285,6 +291,12 @@ const translations: Record<Language, Record<string, string>> = {
     'common.population': 'Population',
     'common.date': 'Date',
     'common.strength': 'Strength',
+    
+    'tariff.day': 'Day',
+    'tariff.night': 'Night',
+    'tariff.peak': 'Peak',
+    'tariff.halfPeak': 'Semi-peak',
+    'tariff.price': 'Price',
     
     'prediction.period.oneMonth': '1 month',
     'prediction.period.threeMonths': '3 months',
