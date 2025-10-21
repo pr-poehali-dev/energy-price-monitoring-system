@@ -59,22 +59,20 @@ export default function OverviewTab({
     if (!active || !payload || !payload.length) return null;
     
     const data = payload[0].payload;
-    const timeZoneLabels: Record<string, string> = {
-      'day': 'День',
-      'night': 'Ночь',
-      'peak': 'Пик',
-      'half_peak': 'Полупик'
-    };
     
     return (
       <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
-        <p className="text-sm font-medium mb-1">{data.date}</p>
-        <p className="text-lg font-bold text-primary">{data.price.toFixed(2)} ₽/кВт⋅ч</p>
-        {data.timeZone && (
-          <p className="text-xs text-muted-foreground mt-1">
-            {timeZoneLabels[data.timeZone] || data.timeZone}
-          </p>
-        )}
+        <p className="text-sm font-medium mb-2">{data.date}</p>
+        <div className="space-y-1">
+          {payload.map((item: any, index: number) => (
+            <div key={index} className="flex items-center justify-between gap-3">
+              <span className="text-xs text-muted-foreground">{item.name}:</span>
+              <span className="text-sm font-bold" style={{ color: item.color }}>
+                {item.value?.toFixed(2)} ₽
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     );
   };
@@ -158,7 +156,29 @@ export default function OverviewTab({
                 />
                 <YAxis stroke="hsl(var(--muted-foreground))" />
                 <Tooltip content={<CustomTooltip />} />
-                <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Цена (₽)" dot={false} />
+                
+                {tariffStructure === 'single' && (
+                  <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Цена (₽)" dot={false} />
+                )}
+                
+                {tariffStructure === 'two_zone' && (
+                  <>
+                    <Line type="monotone" dataKey="day" stroke="hsl(var(--chart-1))" strokeWidth={2} name="День" dot={false} />
+                    <Line type="monotone" dataKey="night" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Ночь" dot={false} />
+                  </>
+                )}
+                
+                {tariffStructure === 'three_zone' && (
+                  <>
+                    <Line type="monotone" dataKey="peak" stroke="hsl(var(--chart-3))" strokeWidth={2} name="Пик" dot={false} />
+                    <Line type="monotone" dataKey="half_peak" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Полупик" dot={false} />
+                    <Line type="monotone" dataKey="night" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Ночь" dot={false} />
+                  </>
+                )}
+                
+                {tariffStructure === 'all' && (
+                  <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Цена (₽)" dot={false} />
+                )}
               </LineChart>
             </ResponsiveContainer>
           )}

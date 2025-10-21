@@ -281,13 +281,31 @@ export default function Index() {
     const filtered = sorted.filter(point => new Date(point.recorded_at) >= cutoffDate);
     const allDates = filtered.map(p => p.recorded_at);
     
-    return filtered.map((point) => ({
-      date: formatDateForChart(point.recorded_at, allDates, language as 'ru' | 'en'),
-      price: parseFloat(point.price.toString()),
-      tariff: point.tariff_type,
-      timeZone: point.time_zone,
-      consumer: point.consumer_type
-    }));
+    // Группируем по дате для мультитарифов
+    const grouped = new Map<string, any>();
+    
+    filtered.forEach((point) => {
+      const dateKey = formatDateForChart(point.recorded_at, allDates, language as 'ru' | 'en');
+      
+      if (!grouped.has(dateKey)) {
+        grouped.set(dateKey, { date: dateKey });
+      }
+      
+      const entry = grouped.get(dateKey)!;
+      const price = parseFloat(point.price.toString());
+      
+      // Для мультитарифов создаём отдельные поля
+      if (point.time_zone) {
+        entry[point.time_zone] = price;
+      } else {
+        entry.price = price;
+      }
+      
+      entry.tariff = point.tariff_type;
+      entry.consumer = point.consumer_type;
+    });
+    
+    return Array.from(grouped.values());
   };
 
   const resetFilters = () => {
