@@ -20,6 +20,9 @@ export default function Index() {
   const [regionHistory, setRegionHistory] = useState<PriceHistoryPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [selectedAnalyticsRegions, setSelectedAnalyticsRegions] = useState<number[]>([]);
+  const [multiRegionData, setMultiRegionData] = useState<any[]>([]);
+  const [multiRegionLoading, setMultiRegionLoading] = useState(false);
   
   const maxPrice = useMemo(() => 
     regions.length > 0 ? Math.max(...regions.map(r => r.current_price)) : 10,
@@ -73,6 +76,14 @@ export default function Index() {
       fetchRegionHistory(selectedRegion.id, parseInt(filters.period));
     }
   }, [selectedRegion, filters.period]);
+  
+  useEffect(() => {
+    if (selectedAnalyticsRegions.length > 0) {
+      fetchMultiRegionHistory(selectedAnalyticsRegions, parseInt(filters.period));
+    } else {
+      setMultiRegionData([]);
+    }
+  }, [selectedAnalyticsRegions, filters.period]);
 
   const fetchData = async () => {
     try {
@@ -119,6 +130,54 @@ export default function Index() {
       console.error('Failed to fetch region history:', error);
     } finally {
       setHistoryLoading(false);
+    }
+  };
+  
+  const fetchMultiRegionHistory = async (regionIds: number[], days: number) => {
+    try {
+      setMultiRegionLoading(true);
+      
+      const promises = regionIds.map(id => 
+        fetch(`${API_URL}?region_id=${id}&days=${days}`).then(r => r.json())
+      );
+      
+      const results = await Promise.all(promises);
+      
+      const dateMap = new Map<string, any>();
+      
+      results.forEach((result, idx) => {
+        const regionId = regionIds[idx];
+        const history = result.history || [];
+        
+        history.forEach((point: any) => {
+          const date = new Date(point.recorded_at).toLocaleDateString('ru-RU', { 
+            day: '2-digit', 
+            month: 'short', 
+            year: 'numeric' 
+          });
+          
+          if (!dateMap.has(date)) {
+            dateMap.set(date, { date });
+          }
+          
+          const entry = dateMap.get(date);
+          entry[`region_${regionId}`] = parseFloat(point.price);
+        });
+      });
+      
+      const chartData = Array.from(dateMap.values())
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      
+      const totalPoints = chartData.length;
+      const maxDataPoints = 30;
+      const step = Math.max(1, Math.floor(totalPoints / maxDataPoints));
+      const sampledData = chartData.filter((_, idx) => idx % step === 0 || idx === totalPoints - 1);
+      
+      setMultiRegionData(sampledData);
+    } catch (error) {
+      console.error('Failed to fetch multi-region history:', error);
+    } finally {
+      setMultiRegionLoading(false);
     }
   };
 
@@ -260,6 +319,10 @@ export default function Index() {
               getChartData={getChartData}
               period={filters.period}
               onPeriodChange={(period) => setFilters(prev => ({ ...prev, period: period as Filters['period'] }))}
+              selectedRegions={selectedAnalyticsRegions}
+              onSelectedRegionsChange={setSelectedAnalyticsRegions}
+              multiRegionData={multiRegionData}
+              multiRegionLoading={multiRegionLoading}
             />
           </TabsContent>
 
