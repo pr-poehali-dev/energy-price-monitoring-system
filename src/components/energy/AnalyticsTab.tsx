@@ -201,7 +201,7 @@ export default function AnalyticsTab({
           <div className="p-4 rounded-lg bg-muted/50">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Тренд за {getPeriodLabel(period)}</p>
+                <p className="text-sm text-muted-foreground">Тренд за {PERIOD_LABELS[period as keyof typeof PERIOD_LABELS]}</p>
                 <p className="text-2xl font-bold mt-1">{calculateTrend(regionHistory)}</p>
               </div>
               <div className="text-right">
