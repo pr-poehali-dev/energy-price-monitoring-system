@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "Get all regions",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "regions": "array",
+        "zones": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get region history",
+      "method": "GET",
+      "path": "/?region_id=1&days=30",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "region": "object",
+        "history": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

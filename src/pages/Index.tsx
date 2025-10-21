@@ -1,42 +1,143 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
-const mockRegions = [
-  { id: 1, name: 'Москва', price: 6.19, change: 2.3, zone: 'Центральный', population: 12.6 },
-  { id: 2, name: 'Санкт-Петербург', price: 5.87, change: -1.2, zone: 'Северо-Западный', population: 5.4 },
-  { id: 3, name: 'Московская область', price: 6.35, change: 3.1, zone: 'Центральный', population: 8.5 },
-  { id: 4, name: 'Краснодарский край', price: 5.42, change: 1.8, zone: 'Южный', population: 5.8 },
-  { id: 5, name: 'Свердловская область', price: 4.98, change: -0.5, zone: 'Уральский', population: 4.3 },
-  { id: 6, name: 'Новосибирская область', price: 4.67, change: 0.9, zone: 'Сибирский', population: 2.8 },
-  { id: 7, name: 'Республика Татарстан', price: 5.12, change: 1.4, zone: 'Приволжский', population: 4.0 },
-  { id: 8, name: 'Красноярский край', price: 4.23, change: -2.1, zone: 'Сибирский', population: 2.9 },
-];
+const API_URL = 'https://functions.poehali.dev/0959059f-a220-4107-9cca-d2f58650ddf8';
 
-const priceHistory = [
-  { month: 'Янв', moscow: 6.05, spb: 5.92, krasnodar: 5.35, ekb: 5.08 },
-  { month: 'Фев', moscow: 6.08, spb: 5.89, krasnodar: 5.38, ekb: 5.12 },
-  { month: 'Мар', moscow: 6.12, spb: 5.85, krasnodar: 5.40, ekb: 5.05 },
-  { month: 'Апр', moscow: 6.15, spb: 5.88, krasnodar: 5.42, ekb: 5.02 },
-  { month: 'Май', moscow: 6.17, spb: 5.86, krasnodar: 5.41, ekb: 4.99 },
-  { month: 'Июн', moscow: 6.19, spb: 5.87, krasnodar: 5.42, ekb: 4.98 },
-];
+interface Region {
+  id: number;
+  name: string;
+  zone: string;
+  population: number;
+  current_price: number;
+  change: number;
+  last_updated?: string;
+}
 
-const zoneStats = [
-  { zone: 'Центральный', avgPrice: 6.27, regions: 18 },
-  { zone: 'Северо-Западный', avgPrice: 5.91, regions: 11 },
-  { zone: 'Южный', avgPrice: 5.45, regions: 8 },
-  { zone: 'Приволжский', avgPrice: 5.18, regions: 14 },
-  { zone: 'Уральский', avgPrice: 5.02, regions: 6 },
-  { zone: 'Сибирский', avgPrice: 4.56, regions: 10 },
-  { zone: 'Дальневосточный', avgPrice: 4.89, regions: 9 },
-];
+interface ZoneStat {
+  zone: string;
+  avg_price: number;
+  region_count: number;
+}
+
+interface PriceHistoryPoint {
+  price: number;
+  recorded_at: string;
+}
 
 export default function Index() {
-  const [selectedRegion, setSelectedRegion] = useState(mockRegions[0]);
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [zoneStats, setZoneStats] = useState<ZoneStat[]>([]);
+  const [selectedRegion, setSelectedRegion] = useState<Region | null>(null);
+  const [regionHistory, setRegionHistory] = useState<PriceHistoryPoint[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (selectedRegion) {
+      fetchRegionHistory(selectedRegion.id);
+    }
+  }, [selectedRegion]);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(API_URL);
+      const data = await response.json();
+      
+      const formattedRegions = data.regions.map((r: any) => ({
+        id: r.id,
+        name: r.name,
+        zone: r.zone,
+        population: parseFloat(r.population),
+        current_price: parseFloat(r.current_price),
+        change: r.change,
+        last_updated: r.last_updated
+      }));
+      
+      const formattedZones = data.zones.map((z: any) => ({
+        zone: z.zone,
+        avg_price: parseFloat(z.avg_price),
+        region_count: z.region_count
+      }));
+      
+      setRegions(formattedRegions);
+      setZoneStats(formattedZones);
+      if (formattedRegions.length > 0) {
+        setSelectedRegion(formattedRegions[0]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchRegionHistory = async (regionId: number) => {
+    try {
+      setHistoryLoading(true);
+      const response = await fetch(`${API_URL}?region_id=${regionId}&days=180`);
+      const data = await response.json();
+      setRegionHistory(data.history || []);
+    } catch (error) {
+      console.error('Failed to fetch region history:', error);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const calculateTrend = (history: PriceHistoryPoint[]) => {
+    if (history.length < 2) return 'стабильно';
+    const sorted = [...history].sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
+    const first = parseFloat(sorted[0].price.toString());
+    const last = parseFloat(sorted[sorted.length - 1].price.toString());
+    const change = ((last - first) / first) * 100;
+    
+    if (change > 2) return 'растёт';
+    if (change < -2) return 'снижается';
+    return 'стабильно';
+  };
+
+  const getChartData = () => {
+    if (regionHistory.length === 0) return [];
+    
+    const sorted = [...regionHistory]
+      .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime())
+      .slice(-6);
+    
+    return sorted.map((point, idx) => ({
+      month: new Date(point.recorded_at).toLocaleDateString('ru-RU', { month: 'short' }),
+      price: parseFloat(point.price.toString()),
+      index: idx
+    }));
+  };
+
+  const avgPrice = regions.length > 0 
+    ? (regions.reduce((sum, r) => sum + r.current_price, 0) / regions.length).toFixed(2)
+    : '0.00';
+  
+  const maxPriceRegion = regions.reduce((max, r) => r.current_price > max.current_price ? r : max, regions[0] || { current_price: 0, name: '-' });
+  const minPriceRegion = regions.reduce((min, r) => r.current_price < min.current_price ? r : min, regions[0] || { current_price: 0, name: '-' });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Icon name="Loader2" className="animate-spin text-primary mx-auto mb-4" size={48} />
+          <p className="text-muted-foreground">Загрузка данных...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!selectedRegion) return null;
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -62,7 +163,7 @@ export default function Index() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Средняя цена РФ</p>
-                <p className="text-3xl font-bold font-mono mt-1">5.41 ₽</p>
+                <p className="text-3xl font-bold font-mono mt-1">{avgPrice} ₽</p>
                 <p className="text-xs text-muted-foreground mt-1">за кВт⋅ч</p>
               </div>
               <Icon name="TrendingUp" className="text-secondary" size={32} />
@@ -73,8 +174,8 @@ export default function Index() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Макс. цена</p>
-                <p className="text-3xl font-bold font-mono mt-1">6.35 ₽</p>
-                <p className="text-xs text-muted-foreground mt-1">Московская обл.</p>
+                <p className="text-3xl font-bold font-mono mt-1">{maxPriceRegion.current_price.toFixed(2)} ₽</p>
+                <p className="text-xs text-muted-foreground mt-1">{maxPriceRegion.name}</p>
               </div>
               <Icon name="ArrowUpCircle" className="text-destructive" size={32} />
             </div>
@@ -84,8 +185,8 @@ export default function Index() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Мин. цена</p>
-                <p className="text-3xl font-bold font-mono mt-1">4.23 ₽</p>
-                <p className="text-xs text-muted-foreground mt-1">Красноярский край</p>
+                <p className="text-3xl font-bold font-mono mt-1">{minPriceRegion.current_price.toFixed(2)} ₽</p>
+                <p className="text-xs text-muted-foreground mt-1">{minPriceRegion.name}</p>
               </div>
               <Icon name="ArrowDownCircle" className="text-secondary" size={32} />
             </div>
@@ -95,7 +196,7 @@ export default function Index() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Регионов</p>
-                <p className="text-3xl font-bold font-mono mt-1">85</p>
+                <p className="text-3xl font-bold font-mono mt-1">{regions.length}</p>
                 <p className="text-xs text-muted-foreground mt-1">отслеживается</p>
               </div>
               <Icon name="MapPin" className="text-chart-4" size={32} />
@@ -130,8 +231,13 @@ export default function Index() {
                   <h3 className="text-xl font-semibold">Динамика цен по регионам</h3>
                   <Icon name="TrendingUp" className="text-primary" size={20} />
                 </div>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={priceHistory}>
+                {historyLoading ? (
+                  <div className="h-[300px] flex items-center justify-center">
+                    <Icon name="Loader2" className="animate-spin text-primary" size={32} />
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={getChartData()}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
                     <YAxis stroke="hsl(var(--muted-foreground))" />
@@ -142,12 +248,10 @@ export default function Index() {
                         borderRadius: '8px'
                       }} 
                     />
-                    <Line type="monotone" dataKey="moscow" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Москва" />
-                    <Line type="monotone" dataKey="spb" stroke="hsl(var(--chart-2))" strokeWidth={2} name="СПб" />
-                    <Line type="monotone" dataKey="krasnodar" stroke="hsl(var(--chart-4))" strokeWidth={2} name="Краснодар" />
-                    <Line type="monotone" dataKey="ekb" stroke="hsl(var(--chart-5))" strokeWidth={2} name="Екатеринбург" />
-                  </LineChart>
-                </ResponsiveContainer>
+                      <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={3} name="Цена (₽)" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
               </Card>
 
               <Card className="p-6">
@@ -156,7 +260,7 @@ export default function Index() {
                   <Icon name="BarChart3" className="text-secondary" size={20} />
                 </div>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={zoneStats}>
+                  <BarChart data={zoneStats.map(z => ({ zone: z.zone, avgPrice: z.avg_price }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis dataKey="zone" stroke="hsl(var(--muted-foreground))" angle={-15} textAnchor="end" height={80} fontSize={12} />
                     <YAxis stroke="hsl(var(--muted-foreground))" />
@@ -179,7 +283,7 @@ export default function Index() {
                 <Icon name="Activity" className="text-chart-4" size={20} />
               </div>
               <div className="space-y-3">
-                {mockRegions
+                {regions
                   .sort((a, b) => Math.abs(b.change) - Math.abs(a.change))
                   .slice(0, 5)
                   .map((region) => (
@@ -192,7 +296,7 @@ export default function Index() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-mono font-semibold">{region.price.toFixed(2)} ₽</p>
+                        <p className="text-lg font-mono font-semibold">{region.current_price.toFixed(2)} ₽</p>
                         <Badge variant={region.change > 0 ? "destructive" : "default"} className="mt-1">
                           <Icon name={region.change > 0 ? "TrendingUp" : "TrendingDown"} size={12} className="mr-1" />
                           {Math.abs(region.change)}%
@@ -209,10 +313,10 @@ export default function Index() {
               <Card className="lg:col-span-2 p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-semibold">Все регионы</h3>
-                  <Badge variant="outline">{mockRegions.length} регионов</Badge>
+                  <Badge variant="outline">{regions.length} регионов</Badge>
                 </div>
                 <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2">
-                  {mockRegions.map((region) => (
+                  {regions.map((region) => (
                     <div
                       key={region.id}
                       onClick={() => setSelectedRegion(region)}
@@ -231,7 +335,7 @@ export default function Index() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-xl font-mono font-bold">{region.price.toFixed(2)} ₽</p>
+                          <p className="text-xl font-mono font-bold">{region.current_price.toFixed(2)} ₽</p>
                           <div className="flex items-center gap-1 justify-end mt-1">
                             <Icon 
                               name={region.change > 0 ? "TrendingUp" : "TrendingDown"} 
@@ -263,7 +367,7 @@ export default function Index() {
                   <div className="space-y-4">
                     <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
                       <p className="text-sm text-muted-foreground mb-1">Текущая цена</p>
-                      <p className="text-4xl font-mono font-bold">{selectedRegion.price.toFixed(2)} ₽</p>
+                      <p className="text-4xl font-mono font-bold">{selectedRegion.current_price.toFixed(2)} ₽</p>
                       <p className="text-sm text-muted-foreground mt-1">за кВт⋅ч</p>
                     </div>
 
@@ -310,17 +414,30 @@ export default function Index() {
                 <h3 className="text-xl font-semibold">Исторические данные цен</h3>
                 <Icon name="Calendar" className="text-primary" size={20} />
               </div>
-              <ResponsiveContainer width="100%" height={400}>
-                <AreaChart data={priceHistory}>
+              <div className="mb-4 p-4 rounded-lg bg-muted/50">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Тренд за 180 дней</p>
+                    <p className="text-2xl font-bold mt-1">{calculateTrend(regionHistory)}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-muted-foreground">История цен</p>
+                    <p className="text-2xl font-bold mt-1">{regionHistory.length} точек</p>
+                  </div>
+                </div>
+              </div>
+              {historyLoading ? (
+                <div className="h-[400px] flex items-center justify-center">
+                  <Icon name="Loader2" className="animate-spin text-primary" size={48} />
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={400}>
+                  <AreaChart data={getChartData()}>
                   <defs>
-                    <linearGradient id="colorMoscow" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="colorSpb" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0}/>
-                    </linearGradient>
+                      <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0}/>
+                      </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
@@ -332,10 +449,10 @@ export default function Index() {
                       borderRadius: '8px'
                     }} 
                   />
-                  <Area type="monotone" dataKey="moscow" stroke="hsl(var(--chart-1))" fillOpacity={1} fill="url(#colorMoscow)" strokeWidth={2} name="Москва" />
-                  <Area type="monotone" dataKey="spb" stroke="hsl(var(--chart-2))" fillOpacity={1} fill="url(#colorSpb)" strokeWidth={2} name="СПб" />
-                </AreaChart>
-              </ResponsiveContainer>
+                    <Area type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" fillOpacity={1} fill="url(#colorPrice)" strokeWidth={3} name="Цена (₽)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -345,7 +462,7 @@ export default function Index() {
                   <h3 className="text-xl font-semibold">Самый высокий рост</h3>
                 </div>
                 <div className="space-y-3">
-                  {mockRegions
+                  {regions
                     .filter(r => r.change > 0)
                     .sort((a, b) => b.change - a.change)
                     .slice(0, 3)
@@ -356,9 +473,9 @@ export default function Index() {
                         </div>
                         <div className="flex-1">
                           <p className="font-medium">{region.name}</p>
-                          <p className="text-sm text-muted-foreground">{region.price.toFixed(2)} ₽</p>
+                          <p className="text-sm text-muted-foreground">{region.current_price.toFixed(2)} ₽</p>
                         </div>
-                        <Badge variant="destructive">+{region.change}%</Badge>
+                        <Badge variant="destructive">+{region.change.toFixed(1)}%</Badge>
                       </div>
                     ))}
                 </div>
@@ -370,7 +487,7 @@ export default function Index() {
                   <h3 className="text-xl font-semibold">Самое большое снижение</h3>
                 </div>
                 <div className="space-y-3">
-                  {mockRegions
+                  {regions
                     .filter(r => r.change < 0)
                     .sort((a, b) => a.change - b.change)
                     .slice(0, 3)
@@ -381,9 +498,9 @@ export default function Index() {
                         </div>
                         <div className="flex-1">
                           <p className="font-medium">{region.name}</p>
-                          <p className="text-sm text-muted-foreground">{region.price.toFixed(2)} ₽</p>
+                          <p className="text-sm text-muted-foreground">{region.current_price.toFixed(2)} ₽</p>
                         </div>
-                        <Badge className="bg-secondary text-secondary-foreground">{region.change}%</Badge>
+                        <Badge className="bg-secondary text-secondary-foreground">{region.change.toFixed(1)}%</Badge>
                       </div>
                     ))}
                 </div>
@@ -398,7 +515,7 @@ export default function Index() {
                 <Icon name="BarChart3" className="text-primary" size={20} />
               </div>
               <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={zoneStats}>
+                <BarChart data={zoneStats.map(z => ({ zone: z.zone, avgPrice: z.avg_price, regions: z.region_count }))}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="zone" stroke="hsl(var(--muted-foreground))" angle={-25} textAnchor="end" height={120} fontSize={12} />
                   <YAxis stroke="hsl(var(--muted-foreground))" label={{ value: 'Цена (₽/кВт⋅ч)', angle: -90, position: 'insideLeft' }} />
@@ -420,8 +537,8 @@ export default function Index() {
                       <div className={`w-3 h-3 rounded-full ${idx === 0 ? 'bg-chart-1' : idx === 1 ? 'bg-chart-2' : 'bg-chart-4'}`} />
                       <p className="font-medium text-sm">{zone.zone}</p>
                     </div>
-                    <p className="text-2xl font-mono font-bold mb-1">{zone.avgPrice.toFixed(2)} ₽</p>
-                    <p className="text-xs text-muted-foreground">{zone.regions} регионов</p>
+                    <p className="text-2xl font-mono font-bold mb-1">{zone.avg_price.toFixed(2)} ₽</p>
+                    <p className="text-xs text-muted-foreground">{zone.region_count} регионов</p>
                   </div>
                 ))}
               </div>
