@@ -291,17 +291,22 @@ export default function Index() {
     }
     const allDates = filtered.map(p => p.recorded_at);
     
-    // Группируем по дате для мультитарифов
+    // Группируем по дате (YYYY-MM-DD) и time_zone для мультитарифов
     const grouped = new Map<string, any>();
     
     filtered.forEach((point) => {
-      const dateKey = formatDateForChart(point.recorded_at, allDates, language as 'ru' | 'en');
+      const dateOnly = point.recorded_at.split('T')[0];
+      const groupKey = point.time_zone ? `${dateOnly}_${point.time_zone}` : dateOnly;
       
-      if (!grouped.has(dateKey)) {
-        grouped.set(dateKey, { date: dateKey });
+      if (!grouped.has(groupKey)) {
+        const displayDate = formatDateForChart(point.recorded_at, allDates, language as 'ru' | 'en');
+        grouped.set(groupKey, { 
+          date: displayDate,
+          timestamp: new Date(point.recorded_at).getTime()
+        });
       }
       
-      const entry = grouped.get(dateKey)!;
+      const entry = grouped.get(groupKey)!;
       const price = parseFloat(point.price.toString());
       
       // Для мультитарифов создаём отдельные поля
@@ -315,7 +320,10 @@ export default function Index() {
       entry.consumer = point.consumer_type;
     });
     
-    return Array.from(grouped.values());
+    // Сортируем по timestamp и удаляем его из результата
+    return Array.from(grouped.values())
+      .sort((a, b) => a.timestamp - b.timestamp)
+      .map(({ timestamp, ...rest }) => rest);
   };
 
   const resetFilters = () => {
