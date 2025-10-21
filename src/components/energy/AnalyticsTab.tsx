@@ -5,9 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import type { Region, PriceHistoryPoint } from './types';
 import { PERIOD_LABELS } from './types';
+import { exportMultiRegionHistoryToExcel, exportMultiRegionHistoryToCSV } from '@/utils/exportData';
 
 interface AnalyticsTabProps {
   regions: Region[];
@@ -75,7 +82,29 @@ export default function AnalyticsTab({
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-semibold">Исторические данные цен</h3>
-          <Icon name="Calendar" className="text-primary" size={20} />
+          <div className="flex items-center gap-3">
+            {selectedRegions.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" disabled={multiRegionLoading || multiRegionData.length === 0}>
+                    <Icon name="Download" size={16} className="mr-2" />
+                    Экспорт
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => exportMultiRegionHistoryToExcel(multiRegionData, regions, selectedRegions)}>
+                    <Icon name="FileSpreadsheet" size={16} className="mr-2" />
+                    Excel (.xlsx)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => exportMultiRegionHistoryToCSV(multiRegionData, regions, selectedRegions)}>
+                    <Icon name="FileText" size={16} className="mr-2" />
+                    CSV (.csv)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            <Icon name="Calendar" className="text-primary" size={20} />
+          </div>
         </div>
         
         <div className="flex items-center gap-2 mb-6 flex-wrap">

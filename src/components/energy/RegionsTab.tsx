@@ -3,8 +3,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import type { Region } from './types';
 import { useState } from 'react';
+import { exportRegionsToExcel, exportRegionsToCSV } from '@/utils/exportData';
 
 interface RegionsTabProps {
   regions: Region[];
@@ -45,9 +52,29 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
       <Card className="lg:col-span-2 p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-semibold">Все регионы</h3>
-          <Badge variant="outline">
-            {filteredAndSortedRegions.length} из {regions.length}
-          </Badge>
+          <div className="flex items-center gap-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Icon name="Download" size={16} className="mr-2" />
+                  Экспорт
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => exportRegionsToExcel(filteredAndSortedRegions)}>
+                  <Icon name="FileSpreadsheet" size={16} className="mr-2" />
+                  Excel (.xlsx)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportRegionsToCSV(filteredAndSortedRegions)}>
+                  <Icon name="FileText" size={16} className="mr-2" />
+                  CSV (.csv)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Badge variant="outline">
+              {filteredAndSortedRegions.length} из {regions.length}
+            </Badge>
+          </div>
         </div>
         
         <div className="mb-4">

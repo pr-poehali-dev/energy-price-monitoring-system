@@ -1,10 +1,18 @@
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import type { Region, ZoneStat, PriceHistoryPoint, PeriodOption } from './types';
 import { PERIOD_LABELS } from './types';
+import { exportHistoryToExcel, exportHistoryToCSV, exportRegionsToExcel, exportRegionsToCSV } from '@/utils/exportData';
 
 interface OverviewTabProps {
   regions: Region[];
@@ -36,7 +44,24 @@ export default function OverviewTab({
           <div className="flex flex-col gap-4 mb-6">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold">Динамика цен по регионам</h3>
-              <Icon name="TrendingUp" className="text-primary" size={20} />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" disabled={historyLoading || regionHistory.length === 0}>
+                    <Icon name="Download" size={16} className="mr-2" />
+                    Экспорт
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => selectedRegion && exportHistoryToExcel(regionHistory, selectedRegion.name)}>
+                    <Icon name="FileSpreadsheet" size={16} className="mr-2" />
+                    Excel (.xlsx)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => selectedRegion && exportHistoryToCSV(regionHistory, selectedRegion.name)}>
+                    <Icon name="FileText" size={16} className="mr-2" />
+                    CSV (.csv)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <Select value={selectedRegion?.id.toString()} onValueChange={(value) => onRegionChange(parseInt(value))}>
@@ -123,7 +148,24 @@ export default function OverviewTab({
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-semibold">Все регионы по изменению цены</h3>
-          <Icon name="Activity" className="text-chart-4" size={20} />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Icon name="Download" size={16} className="mr-2" />
+                Экспорт
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => exportRegionsToExcel(regions)}>
+                <Icon name="FileSpreadsheet" size={16} className="mr-2" />
+                Excel (.xlsx)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => exportRegionsToCSV(regions)}>
+                <Icon name="FileText" size={16} className="mr-2" />
+                CSV (.csv)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
           {regions

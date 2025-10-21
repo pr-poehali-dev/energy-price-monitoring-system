@@ -1,9 +1,17 @@
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { ZoneStat, Region } from './types';
+import { exportRegionsToExcel, exportRegionsToCSV } from '@/utils/exportData';
 
 interface CompareTabProps {
   zoneStats: ZoneStat[];
@@ -32,7 +40,24 @@ export default function CompareTab({ zoneStats, regions }: CompareTabProps) {
         <Card className="p-6">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-semibold">Сравнение тарифов по федеральным округам</h3>
-        <Icon name="BarChart3" className="text-primary" size={20} />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Icon name="Download" size={16} className="mr-2" />
+              Экспорт
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => exportRegionsToExcel(regions)}>
+              <Icon name="FileSpreadsheet" size={16} className="mr-2" />
+              Excel (.xlsx)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => exportRegionsToCSV(regions)}>
+              <Icon name="FileText" size={16} className="mr-2" />
+              CSV (.csv)
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <ResponsiveContainer width="100%" height={400}>
         <BarChart data={zoneStats.map(z => ({ zone: z.zone, avgPrice: z.avg_price, regions: z.region_count }))}>
