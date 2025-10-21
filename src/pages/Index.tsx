@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
@@ -7,7 +7,8 @@ import OverviewTab from '@/components/energy/OverviewTab';
 import RegionsTab from '@/components/energy/RegionsTab';
 import AnalyticsTab from '@/components/energy/AnalyticsTab';
 import CompareTab from '@/components/energy/CompareTab';
-import type { Region, ZoneStat, PriceHistoryPoint } from '@/components/energy/types';
+import FilterPanel from '@/components/energy/FilterPanel';
+import type { Region, ZoneStat, PriceHistoryPoint, Filters } from '@/components/energy/types';
 import { API_URL } from '@/components/energy/types';
 
 export default function Index() {
@@ -17,6 +18,49 @@ export default function Index() {
   const [regionHistory, setRegionHistory] = useState<PriceHistoryPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [historyLoading, setHistoryLoading] = useState(false);
+  
+  const maxPrice = useMemo(() => 
+    regions.length > 0 ? Math.max(...regions.map(r => r.current_price)) : 10,
+    [regions]
+  );
+
+  const [filters, setFilters] = useState<Filters>({
+    zones: [],
+    searchQuery: '',
+    period: '180',
+    tariffType: 'all',
+    priceRange: [0, maxPrice]
+  });
+
+  useEffect(() => {
+    if (maxPrice > 0 && filters.priceRange[1] === 0) {
+      setFilters(prev => ({ ...prev, priceRange: [0, maxPrice] }));
+    }
+  }, [maxPrice]);
+
+  const filteredRegions = useMemo(() => {
+    return regions.filter(region => {
+      if (filters.zones.length > 0 && !filters.zones.includes(region.zone)) {
+        return false;
+      }
+      
+      if (filters.searchQuery && !region.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) {
+        return false;
+      }
+      
+      if (filters.tariffType !== 'all') {
+        if (filters.tariffType === 'growing' && region.change <= 0) return false;
+        if (filters.tariffType === 'decreasing' && region.change >= 0) return false;
+        if (filters.tariffType === 'stable' && Math.abs(region.change) > 2) return false;
+      }
+      
+      if (region.current_price < filters.priceRange[0] || region.current_price > filters.priceRange[1]) {
+        return false;
+      }
+      
+      return true;
+    });
+  }, [regions, filters]);
 
   useEffect(() => {
     fetchData();
@@ -24,9 +68,9 @@ export default function Index() {
 
   useEffect(() => {
     if (selectedRegion) {
-      fetchRegionHistory(selectedRegion.id);
+      fetchRegionHistory(selectedRegion.id, parseInt(filters.period));
     }
-  }, [selectedRegion]);
+  }, [selectedRegion, filters.period]);
 
   const fetchData = async () => {
     try {
@@ -62,10 +106,10 @@ export default function Index() {
     }
   };
 
-  const fetchRegionHistory = async (regionId: number) => {
+  const fetchRegionHistory = async (regionId: number, days: number) => {
     try {
       setHistoryLoading(true);
-      const response = await fetch(`${API_URL}?region_id=${regionId}&days=180`);
+      const response = await fetch(`${API_URL}?region_id=${regionId}&days=${days}`);
       const data = await response.json();
       setRegionHistory(data.history || []);
     } catch (error) {
@@ -101,6 +145,16 @@ export default function Index() {
     }));
   };
 
+  const resetFilters = () => {
+    setFilters({
+      zones: [],
+      searchQuery: '',
+      period: '180',
+      tariffType: 'all',
+      priceRange: [0, maxPrice]
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -133,7 +187,15 @@ export default function Index() {
           </div>
         </header>
 
-        <StatsCards regions={regions} />
+        <FilterPanel 
+          filters={filters}
+          onFiltersChange={setFilters}
+          zoneStats={zoneStats}
+          maxPrice={maxPrice}
+          onReset={resetFilters}
+        />
+
+        <StatsCards regions={filteredRegions} />
 
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="grid w-full md:w-auto grid-cols-4 md:inline-flex">
@@ -157,7 +219,7 @@ export default function Index() {
 
           <TabsContent value="overview">
             <OverviewTab 
-              regions={regions}
+              regions={filteredRegions}
               zoneStats={zoneStats}
               regionHistory={regionHistory}
               historyLoading={historyLoading}
@@ -167,7 +229,7 @@ export default function Index() {
 
           <TabsContent value="regions">
             <RegionsTab 
-              regions={regions}
+              regions={filteredRegions}
               selectedRegion={selectedRegion}
               onSelectRegion={setSelectedRegion}
             />
@@ -175,7 +237,7 @@ export default function Index() {
 
           <TabsContent value="analytics">
             <AnalyticsTab 
-              regions={regions}
+              regions={filteredRegions}
               regionHistory={regionHistory}
               historyLoading={historyLoading}
               calculateTrend={calculateTrend}

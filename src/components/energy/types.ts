@@ -19,4 +19,12 @@ export interface PriceHistoryPoint {
   recorded_at: string;
 }
 
+export interface Filters {
+  zones: string[];
+  searchQuery: string;
+  period: '30' | '90' | '180' | '365';
+  tariffType: 'all' | 'growing' | 'decreasing' | 'stable';
+  priceRange: [number, number];
+}
+
 export const API_URL = 'https://functions.poehali.dev/0959059f-a220-4107-9cca-d2f58650ddf8';
