@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
+import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import StatsCards from '@/components/energy/StatsCards';
 import OverviewTab from '@/components/energy/OverviewTab';
 import RegionsTab from '@/components/energy/RegionsTab';
@@ -15,6 +17,7 @@ import { API_URL } from '@/components/energy/types';
 import { getCitiesForRegion } from '@/utils/citiesData';
 
 export default function Index() {
+  const { t, language } = useLanguage();
   const [regions, setRegions] = useState<Region[]>([]);
   const [zoneStats, setZoneStats] = useState<ZoneStat[]>([]);
   const [selectedRegion, setSelectedRegion] = useState<Region | null>(null);
@@ -215,7 +218,7 @@ export default function Index() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Icon name="Loader2" className="animate-spin text-primary mx-auto mb-4" size={48} />
-          <p className="text-muted-foreground">Загрузка данных...</p>
+          <p className="text-muted-foreground">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -230,15 +233,16 @@ export default function Index() {
           <div>
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight flex items-center gap-3">
               <Icon name="Zap" className="text-primary" size={36} />
-              Мониторинг цен на электроэнергию
+              {t('app.title')}
             </h1>
-            <p className="text-muted-foreground mt-1">Актуальные данные по всем регионам РФ</p>
+            <p className="text-muted-foreground mt-1">{t('app.subtitle')}</p>
           </div>
           <div className="flex items-center gap-3">
             <Badge variant="outline" className="px-4 py-2 text-sm font-mono">
               <Icon name="Calendar" size={16} className="mr-2" />
-              Обновлено: {new Date().toLocaleDateString('ru-RU')}
+              {t('app.updated')}: {new Date().toLocaleDateString(language === 'ru' ? 'ru-RU' : 'en-US')}
             </Badge>
+            <LanguageSwitcher />
           </div>
         </header>
 
@@ -248,31 +252,31 @@ export default function Index() {
           <TabsList className="grid w-full md:w-auto grid-cols-4 md:grid-cols-7 md:inline-flex gap-1">
             <TabsTrigger value="overview" className="gap-2">
               <Icon name="LayoutDashboard" size={16} />
-              <span className="hidden md:inline">Обзор</span>
+              <span className="hidden md:inline">{t('tabs.overview')}</span>
             </TabsTrigger>
             <TabsTrigger value="forecast" className="gap-2">
               <Icon name="TrendingUp" size={16} />
-              <span className="hidden md:inline">Прогноз</span>
+              <span className="hidden md:inline">{t('tabs.forecast')}</span>
             </TabsTrigger>
             <TabsTrigger value="map" className="gap-2">
               <Icon name="MapPinned" size={16} />
-              <span className="hidden md:inline">Карта</span>
+              <span className="hidden md:inline">{t('tabs.map')}</span>
             </TabsTrigger>
             <TabsTrigger value="regions" className="gap-2">
               <Icon name="Map" size={16} />
-              <span className="hidden md:inline">Регионы</span>
+              <span className="hidden md:inline">{t('tabs.regions')}</span>
             </TabsTrigger>
             <TabsTrigger value="analytics" className="gap-2">
               <Icon name="LineChart" size={16} />
-              <span className="hidden md:inline">Аналитика</span>
+              <span className="hidden md:inline">{t('tabs.analytics')}</span>
             </TabsTrigger>
             <TabsTrigger value="compare" className="gap-2">
               <Icon name="BarChart3" size={16} />
-              <span className="hidden md:inline">Сравнение</span>
+              <span className="hidden md:inline">{t('tabs.compare')}</span>
             </TabsTrigger>
             <TabsTrigger value="filters" className="gap-2">
               <Icon name="SlidersHorizontal" size={16} />
-              <span className="hidden md:inline">Фильтры</span>
+              <span className="hidden md:inline">{t('tabs.filters')}</span>
             </TabsTrigger>
           </TabsList>
 
