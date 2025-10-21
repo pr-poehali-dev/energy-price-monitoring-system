@@ -264,7 +264,10 @@ export default function Index() {
           </TabsContent>
 
           <TabsContent value="compare">
-            <CompareTab zoneStats={zoneStats} />
+            <CompareTab 
+              zoneStats={zoneStats}
+              regions={filteredRegions}
+            />
           </TabsContent>
 
           <TabsContent value="filters">

@@ -100,10 +100,12 @@ export default function FilterPanel({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="30">30 дней</SelectItem>
-              <SelectItem value="90">90 дней</SelectItem>
-              <SelectItem value="180">180 дней</SelectItem>
+              <SelectItem value="30">1 месяц</SelectItem>
+              <SelectItem value="90">3 месяца</SelectItem>
+              <SelectItem value="180">6 месяцев</SelectItem>
               <SelectItem value="365">1 год</SelectItem>
+              <SelectItem value="730">2 года</SelectItem>
+              <SelectItem value="1095">3 года</SelectItem>
             </SelectContent>
           </Select>
         </div>
