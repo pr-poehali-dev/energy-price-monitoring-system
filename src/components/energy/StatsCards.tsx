@@ -9,12 +9,20 @@ interface StatsCardsProps {
 
 export default function StatsCards({ regions }: StatsCardsProps) {
   const { t } = useLanguage();
-  const avgPrice = regions.length > 0 
-    ? (regions.reduce((sum, r) => sum + r.current_price, 0) / regions.length).toFixed(2)
+  
+  const regionsWithPrices = regions.filter(r => r.current_price != null && r.current_price > 0);
+  
+  const avgPrice = regionsWithPrices.length > 0 
+    ? (regionsWithPrices.reduce((sum, r) => sum + r.current_price, 0) / regionsWithPrices.length).toFixed(2)
     : '0.00';
   
-  const maxPriceRegion = regions.reduce((max, r) => r.current_price > max.current_price ? r : max, regions[0] || { current_price: 0, name: '-' });
-  const minPriceRegion = regions.reduce((min, r) => r.current_price < min.current_price ? r : min, regions[0] || { current_price: 0, name: '-' });
+  const maxPriceRegion = regionsWithPrices.length > 0
+    ? regionsWithPrices.reduce((max, r) => r.current_price > max.current_price ? r : max)
+    : { current_price: 0, name: '-' };
+    
+  const minPriceRegion = regionsWithPrices.length > 0
+    ? regionsWithPrices.reduce((min, r) => r.current_price < min.current_price ? r : min)
+    : { current_price: 0, name: '-' };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-scale-in">

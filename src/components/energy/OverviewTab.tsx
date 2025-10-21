@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import type { Region, ZoneStat, PriceHistoryPoint, PeriodOption } from './types';
 import { PERIOD_LABELS } from './types';
 import { exportHistoryToExcel, exportHistoryToCSV, exportRegionsToExcel, exportRegionsToCSV } from '@/utils/exportData';
@@ -156,9 +156,10 @@ export default function OverviewTab({
                 />
                 <YAxis stroke="hsl(var(--muted-foreground))" />
                 <Tooltip content={<CustomTooltip />} />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 
                 {tariffStructure === 'single' && (
-                  <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Цена (₽)" dot={false} />
+                  <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Цена" dot={false} />
                 )}
                 
                 {tariffStructure === 'two_zone' && (
@@ -177,7 +178,7 @@ export default function OverviewTab({
                 )}
                 
                 {tariffStructure === 'all' && (
-                  <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Цена (₽)" dot={false} />
+                  <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Цена" dot={false} />
                 )}
               </LineChart>
             </ResponsiveContainer>
