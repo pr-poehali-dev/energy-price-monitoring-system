@@ -136,6 +136,11 @@ const translations: Record<Language, Record<string, string>> = {
     'tariff.peak': 'Пик',
     'tariff.halfPeak': 'Полупик',
     'tariff.price': 'Цена',
+    'tariff.displayMode': 'Режим отображения:',
+    'tariff.average': 'Средняя цена',
+    'tariff.byZones': 'По зонам',
+    'tariff.averageInfo': 'Показана средняя цена по всем тарифным зонам',
+    'tariff.zonesInfo': 'Показаны все тарифные зоны отдельно',
     
     'prediction.title': 'Прогноз цен',
     'prediction.insufficientData': 'Недостаточно данных для прогноза',
@@ -299,6 +304,11 @@ const translations: Record<Language, Record<string, string>> = {
     'tariff.peak': 'Peak',
     'tariff.halfPeak': 'Semi-peak',
     'tariff.price': 'Price',
+    'tariff.displayMode': 'Display mode:',
+    'tariff.average': 'Average price',
+    'tariff.byZones': 'By zones',
+    'tariff.averageInfo': 'Showing average price across all tariff zones',
+    'tariff.zonesInfo': 'Showing all tariff zones separately',
     
     'prediction.period.oneMonth': '1 month',
     'prediction.period.threeMonths': '3 months',

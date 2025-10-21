@@ -43,7 +43,8 @@ export default function Index() {
     tariffStructure: 'all',
     timeZone: 'all',
     consumerType: 'all',
-    priceRange: [0, maxPrice]
+    priceRange: [0, maxPrice],
+    displayMode: 'average'
   });
 
   useEffect(() => {
@@ -291,7 +292,63 @@ export default function Index() {
     }
     const allDates = filtered.map(p => p.recorded_at);
     
-    // Группируем по дате (YYYY-MM-DD) и time_zone для мультитарифов
+    // Режим "Средняя цена" - усредняем все тарифы по дате
+    if (filters.tariffStructure === 'all' && filters.displayMode === 'average') {
+      const grouped = new Map<string, { prices: number[], date: string, timestamp: number }>();
+      
+      filtered.forEach((point) => {
+        const dateOnly = point.recorded_at.split('T')[0];
+        
+        if (!grouped.has(dateOnly)) {
+          const displayDate = formatDateForChart(point.recorded_at, allDates, language as 'ru' | 'en');
+          grouped.set(dateOnly, { 
+            prices: [],
+            date: displayDate,
+            timestamp: new Date(point.recorded_at).getTime()
+          });
+        }
+        
+        const entry = grouped.get(dateOnly)!;
+        entry.prices.push(parseFloat(point.price.toString()));
+      });
+      
+      return Array.from(grouped.values())
+        .sort((a, b) => a.timestamp - b.timestamp)
+        .map(({ prices, date }) => ({
+          date,
+          price: prices.reduce((sum, p) => sum + p, 0) / prices.length
+        }));
+    }
+    
+    // Режим "По зонам" - все зоны на одном графике по датам
+    if (filters.tariffStructure === 'all' && filters.displayMode === 'zones') {
+      const grouped = new Map<string, any>();
+      
+      filtered.forEach((point) => {
+        const dateOnly = point.recorded_at.split('T')[0];
+        
+        if (!grouped.has(dateOnly)) {
+          const displayDate = formatDateForChart(point.recorded_at, allDates, language as 'ru' | 'en');
+          grouped.set(dateOnly, { 
+            date: displayDate,
+            timestamp: new Date(point.recorded_at).getTime()
+          });
+        }
+        
+        const entry = grouped.get(dateOnly)!;
+        const price = parseFloat(point.price.toString());
+        
+        if (point.time_zone) {
+          entry[point.time_zone] = price;
+        }
+      });
+      
+      return Array.from(grouped.values())
+        .sort((a, b) => a.timestamp - b.timestamp)
+        .map(({ timestamp, ...rest }) => rest);
+    }
+    
+    // Конкретный тариф - показываем отдельные линии зон
     const grouped = new Map<string, any>();
     
     filtered.forEach((point) => {
@@ -309,7 +366,6 @@ export default function Index() {
       const entry = grouped.get(groupKey)!;
       const price = parseFloat(point.price.toString());
       
-      // Для мультитарифов создаём отдельные поля
       if (point.time_zone) {
         entry[point.time_zone] = price;
       } else {
@@ -320,7 +376,6 @@ export default function Index() {
       entry.consumer = point.consumer_type;
     });
     
-    // Сортируем по timestamp и удаляем его из результата
     return Array.from(grouped.values())
       .sort((a, b) => a.timestamp - b.timestamp)
       .map(({ timestamp, ...rest }) => rest);
@@ -335,7 +390,8 @@ export default function Index() {
       tariffStructure: 'all',
       timeZone: 'all',
       consumerType: 'all',
-      priceRange: [0, maxPrice]
+      priceRange: [0, maxPrice],
+      displayMode: 'average'
     });
   };
 
@@ -422,6 +478,8 @@ export default function Index() {
               onPeriodChange={(period) => setFilters(prev => ({ ...prev, period }))}
               tariffStructure={filters.tariffStructure}
               consumerType={filters.consumerType}
+              displayMode={filters.displayMode}
+              onDisplayModeChange={(mode) => setFilters(prev => ({ ...prev, displayMode: mode }))}
             />
           </TabsContent>
 

@@ -38,6 +38,7 @@ export interface Filters {
   timeZone?: 'all' | 'day' | 'night' | 'peak' | 'half_peak';
   consumerType: 'all' | 'standard' | 'electric_stove';
   priceRange: [number, number];
+  displayMode?: 'average' | 'zones';
 }
 
 export type PeriodOption = '30' | '90' | '180' | '365' | '730' | '1095' | '1825' | 'all';

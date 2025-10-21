@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +30,8 @@ interface OverviewTabProps {
   onPeriodChange: (period: PeriodOption) => void;
   tariffStructure?: string;
   consumerType?: string;
+  displayMode?: 'average' | 'zones';
+  onDisplayModeChange?: (mode: 'average' | 'zones') => void;
 }
 
 export default function OverviewTab({ 
@@ -42,7 +45,9 @@ export default function OverviewTab({
   period,
   onPeriodChange,
   tariffStructure = 'all',
-  consumerType = 'all'
+  consumerType = 'all',
+  displayMode = 'average',
+  onDisplayModeChange
 }: OverviewTabProps) {
   const { translateRegionName, translateZoneName } = useTranslateNames();
   const { t, language } = useLanguage();
@@ -138,6 +143,20 @@ export default function OverviewTab({
                   ))}
                 </SelectContent>
               </Select>
+              {tariffStructure === 'all' && onDisplayModeChange && (
+                <Tabs value={displayMode} onValueChange={(v) => onDisplayModeChange(v as 'average' | 'zones')} className="w-auto">
+                  <TabsList className="h-9">
+                    <TabsTrigger value="average" className="text-xs px-3">
+                      <Icon name="TrendingUp" size={14} className="mr-1.5" />
+                      {t('tariff.average')}
+                    </TabsTrigger>
+                    <TabsTrigger value="zones" className="text-xs px-3">
+                      <Icon name="Layers" size={14} className="mr-1.5" />
+                      {t('tariff.byZones')}
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              )}
             </div>
           </div>
           {historyLoading ? (
@@ -163,7 +182,7 @@ export default function OverviewTab({
                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 
                 {tariffStructure === 'single' && (
-                  <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Цена" dot={false} />
+                  <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={2} name={t('tariff.price')} dot={false} />
                 )}
                 
                 {tariffStructure === 'two_zone' && (
@@ -181,20 +200,37 @@ export default function OverviewTab({
                   </>
                 )}
                 
-                {tariffStructure === 'all' && (
-                  <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={2} name={t('tariff.price')} dot={false} />
+                {tariffStructure === 'all' && displayMode === 'average' && (
+                  <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={2} name={t('tariff.average')} dot={false} />
+                )}
+                
+                {tariffStructure === 'all' && displayMode === 'zones' && (
+                  <>
+                    <Line type="monotone" dataKey="day" stroke="hsl(var(--chart-1))" strokeWidth={2} name={t('tariff.day')} dot={false} connectNulls />
+                    <Line type="monotone" dataKey="night" stroke="hsl(var(--chart-2))" strokeWidth={2} name={t('tariff.night')} dot={false} connectNulls />
+                    <Line type="monotone" dataKey="peak" stroke="hsl(var(--chart-3))" strokeWidth={2} name={t('tariff.peak')} dot={false} connectNulls />
+                    <Line type="monotone" dataKey="half_peak" stroke="hsl(var(--chart-4))" strokeWidth={2} name={t('tariff.halfPeak')} dot={false} connectNulls />
+                  </>
                 )}
               </LineChart>
             </ResponsiveContainer>
           )}
           {!historyLoading && regionHistory.length > 0 && (
-            <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-              <Icon name="Database" size={16} />
-              <span>Загружено {regionHistory.length} точек данных</span>
-              {regionHistory.length > 0 && (
-                <span className="text-xs">
-                  ({new Date(regionHistory[0].recorded_at).toLocaleDateString(language === 'en' ? 'en-GB' : 'ru-RU')} - {new Date(regionHistory[regionHistory.length - 1].recorded_at).toLocaleDateString(language === 'en' ? 'en-GB' : 'ru-RU')})
-                </span>
+            <div className="mt-4 space-y-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Icon name="Database" size={16} />
+                <span>Загружено {regionHistory.length} точек данных</span>
+                {regionHistory.length > 0 && (
+                  <span className="text-xs">
+                    ({new Date(regionHistory[0].recorded_at).toLocaleDateString(language === 'en' ? 'en-GB' : 'ru-RU')} - {new Date(regionHistory[regionHistory.length - 1].recorded_at).toLocaleDateString(language === 'en' ? 'en-GB' : 'ru-RU')})
+                  </span>
+                )}
+              </div>
+              {tariffStructure === 'all' && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Icon name="Info" size={14} />
+                  <span>{displayMode === 'average' ? t('tariff.averageInfo') : t('tariff.zonesInfo')}</span>
+                </div>
               )}
             </div>
           )}
