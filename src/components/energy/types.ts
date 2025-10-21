@@ -24,6 +24,9 @@ export interface ZoneStat {
 export interface PriceHistoryPoint {
   price: number;
   recorded_at: string;
+  tariff_type?: 'single' | 'two_zone' | 'three_zone';
+  time_zone?: 'day' | 'night' | 'peak' | 'half_peak';
+  consumer_type?: 'standard' | 'electric_stove' | 'electric_heating' | 'rural';
 }
 
 export interface Filters {
