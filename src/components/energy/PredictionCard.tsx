@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { predictPrices, getTrendDescription, getAccuracyDescription } from '@/utils/pricePredictor';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { formatDateForChart } from '@/utils/dateFormatter';
 import type { PriceHistoryPoint } from './types';
 
 interface PredictionCardProps {
@@ -42,16 +43,16 @@ export default function PredictionCard({
 
   const prediction = predictPrices(regionHistory, daysAhead);
   
-  const historicalData = regionHistory
-    .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime())
-    .map(point => ({
-      date: new Date(point.recorded_at).toLocaleDateString(language === 'ru' ? 'ru-RU' : 'en-US', { 
-        day: '2-digit', 
-        month: 'short' 
-      }),
-      actual: parseFloat(point.price.toString()),
-      predicted: null as number | null
-    }));
+  const sortedHistory = regionHistory
+    .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
+  
+  const allHistoricalDates = sortedHistory.map(p => p.recorded_at);
+  
+  const historicalData = sortedHistory.map(point => ({
+    date: formatDateForChart(point.recorded_at, allHistoricalDates, language as 'ru' | 'en'),
+    actual: parseFloat(point.price.toString()),
+    predicted: null as number | null
+  }));
 
   const futureData = prediction.predictions.map(point => ({
     date: point.date,

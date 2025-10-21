@@ -15,6 +15,7 @@ import ForecastTab from '@/components/energy/ForecastTab';
 import type { Region, ZoneStat, PriceHistoryPoint, Filters } from '@/components/energy/types';
 import { API_URL } from '@/components/energy/types';
 import { getCitiesForRegion } from '@/utils/citiesData';
+import { formatDateForChart } from '@/utils/dateFormatter';
 
 export default function Index() {
   const { t, language } = useLanguage();
@@ -147,6 +148,15 @@ export default function Index() {
       
       const results = await Promise.all(promises);
       
+      // Собираем все даты для определения периода
+      const allDates: string[] = [];
+      results.forEach(result => {
+        const history = result.history || [];
+        history.forEach((point: any) => {
+          allDates.push(point.recorded_at);
+        });
+      });
+      
       const dateMap = new Map<string, any>();
       
       results.forEach((result, idx) => {
@@ -154,13 +164,10 @@ export default function Index() {
         const history = result.history || [];
         
         history.forEach((point: any) => {
-          const date = new Date(point.recorded_at).toLocaleDateString('ru-RU', { 
-            day: '2-digit', 
-            month: 'short'
-          });
+          const date = formatDateForChart(point.recorded_at, allDates, language as 'ru' | 'en');
           
           if (!dateMap.has(date)) {
-            dateMap.set(date, { date });
+            dateMap.set(date, { date, timestamp: new Date(point.recorded_at).getTime() });
           }
           
           const entry = dateMap.get(date);
@@ -169,7 +176,8 @@ export default function Index() {
       });
       
       const chartData = Array.from(dateMap.values())
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        .sort((a, b) => a.timestamp - b.timestamp)
+        .map(({ timestamp, ...rest }) => rest);
       
       setMultiRegionData(chartData);
     } catch (error) {
@@ -197,8 +205,10 @@ export default function Index() {
     const sorted = [...regionHistory]
       .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
     
+    const allDates = sorted.map(p => p.recorded_at);
+    
     return sorted.map((point) => ({
-      date: new Date(point.recorded_at).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' }),
+      date: formatDateForChart(point.recorded_at, allDates, language as 'ru' | 'en'),
       price: parseFloat(point.price.toString())
     }));
   };
