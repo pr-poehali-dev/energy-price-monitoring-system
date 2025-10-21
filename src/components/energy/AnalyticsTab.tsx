@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import type { Region, PriceHistoryPoint } from './types';
+import { PERIOD_LABELS } from './types';
 
 interface AnalyticsTabProps {
   regions: Region[];
@@ -69,17 +70,6 @@ export default function AnalyticsTab({
     '#8884d8',
     '#82ca9d'
   ];
-  const getPeriodLabel = (days: string) => {
-    switch(days) {
-      case '30': return '1 месяц';
-      case '90': return '3 месяца';
-      case '180': return '6 месяцев';
-      case '365': return '1 год';
-      case '730': return '2 года';
-      case '1095': return '3 года';
-      default: return days + ' дней';
-    }
-  };
   return (
     <div className="space-y-6 animate-fade-in">
       <Card className="p-6">
@@ -90,48 +80,16 @@ export default function AnalyticsTab({
         
         <div className="flex items-center gap-2 mb-6 flex-wrap">
           <span className="text-sm text-muted-foreground">Период:</span>
-          <Button 
-            size="sm" 
-            variant={period === '30' ? 'default' : 'outline'}
-            onClick={() => onPeriodChange('30')}
-          >
-            1 месяц
-          </Button>
-          <Button 
-            size="sm" 
-            variant={period === '90' ? 'default' : 'outline'}
-            onClick={() => onPeriodChange('90')}
-          >
-            3 месяца
-          </Button>
-          <Button 
-            size="sm" 
-            variant={period === '180' ? 'default' : 'outline'}
-            onClick={() => onPeriodChange('180')}
-          >
-            6 месяцев
-          </Button>
-          <Button 
-            size="sm" 
-            variant={period === '365' ? 'default' : 'outline'}
-            onClick={() => onPeriodChange('365')}
-          >
-            1 год
-          </Button>
-          <Button 
-            size="sm" 
-            variant={period === '730' ? 'default' : 'outline'}
-            onClick={() => onPeriodChange('730')}
-          >
-            2 года
-          </Button>
-          <Button 
-            size="sm" 
-            variant={period === '1095' ? 'default' : 'outline'}
-            onClick={() => onPeriodChange('1095')}
-          >
-            3 года
-          </Button>
+          {Object.entries(PERIOD_LABELS).map(([value, label]) => (
+            <Button 
+              key={value}
+              size="sm" 
+              variant={period === value ? 'default' : 'outline'}
+              onClick={() => onPeriodChange(value)}
+            >
+              {label}
+            </Button>
+          ))}
         </div>
         <div className="mb-4 space-y-4">
           <div className="flex items-center justify-between gap-4">
@@ -236,7 +194,16 @@ export default function AnalyticsTab({
           <ResponsiveContainer width="100%" height={500}>
             <LineChart data={multiRegionData}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" height={80} />
+              <XAxis 
+                dataKey="date" 
+                stroke="hsl(var(--muted-foreground))" 
+                angle={-25} 
+                textAnchor="end" 
+                height={70}
+                fontSize={11}
+                interval="preserveStartEnd"
+                minTickGap={40}
+              />
               <YAxis stroke="hsl(var(--muted-foreground))" label={{ value: 'Цена (₽/кВт⋅ч)', angle: -90, position: 'insideLeft' }} />
               <Tooltip 
                 contentStyle={{ 
@@ -266,7 +233,16 @@ export default function AnalyticsTab({
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={getChartData()}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" height={80} />
+              <XAxis 
+                dataKey="date" 
+                stroke="hsl(var(--muted-foreground))" 
+                angle={-25} 
+                textAnchor="end" 
+                height={70}
+                fontSize={11}
+                interval="preserveStartEnd"
+                minTickGap={40}
+              />
               <YAxis stroke="hsl(var(--muted-foreground))" />
               <Tooltip 
                 contentStyle={{ 
@@ -275,7 +251,7 @@ export default function AnalyticsTab({
                   borderRadius: '8px'
                 }} 
               />
-              <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={3} name="Цена (₽)" />
+              <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Цена (₽)" dot={false} />
             </LineChart>
           </ResponsiveContainer>
         )}

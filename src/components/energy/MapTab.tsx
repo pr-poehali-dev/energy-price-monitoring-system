@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import type { Region } from './types';
+import { PERIOD_LABELS } from './types';
 
 interface MapTabProps {
   regions: Region[];
@@ -12,18 +13,7 @@ interface MapTabProps {
   onPeriodChange?: (period: string) => void;
 }
 
-export default function MapTab({ regions, onSelectRegion, period = '180', onPeriodChange }: MapTabProps) {
-  const getPeriodLabel = (days: string) => {
-    switch(days) {
-      case '30': return '1 месяц';
-      case '90': return '3 месяца';
-      case '180': return '6 месяцев';
-      case '365': return '1 год';
-      case '730': return '2 года';
-      case '1095': return '3 года';
-      default: return days + ' дней';
-    }
-  };
+export default function MapTab({ regions, onSelectRegion, period = '90', onPeriodChange }: MapTabProps) {
   const [hoveredRegion, setHoveredRegion] = useState<Region | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationStep, setAnimationStep] = useState(0);
@@ -71,7 +61,7 @@ export default function MapTab({ regions, onSelectRegion, period = '180', onPeri
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-xl font-semibold">Тепловая карта цен</h3>
-              <p className="text-sm text-muted-foreground mt-1">Изменения за {getPeriodLabel(period)}</p>
+              <p className="text-sm text-muted-foreground mt-1">Изменения за {PERIOD_LABELS[period as keyof typeof PERIOD_LABELS]}</p>
             </div>
             <div className="flex items-center gap-3">
               <Button

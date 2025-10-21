@@ -32,7 +32,7 @@ export default function Index() {
   const [filters, setFilters] = useState<Filters>({
     zones: [],
     searchQuery: '',
-    period: '180',
+    period: '90',
     tariffType: 'all',
     priceRange: [0, maxPrice]
   });
@@ -152,8 +152,7 @@ export default function Index() {
         history.forEach((point: any) => {
           const date = new Date(point.recorded_at).toLocaleDateString('ru-RU', { 
             day: '2-digit', 
-            month: 'short', 
-            year: 'numeric' 
+            month: 'short'
           });
           
           if (!dateMap.has(date)) {
@@ -168,12 +167,7 @@ export default function Index() {
       const chartData = Array.from(dateMap.values())
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       
-      const totalPoints = chartData.length;
-      const maxDataPoints = 30;
-      const step = Math.max(1, Math.floor(totalPoints / maxDataPoints));
-      const sampledData = chartData.filter((_, idx) => idx % step === 0 || idx === totalPoints - 1);
-      
-      setMultiRegionData(sampledData);
+      setMultiRegionData(chartData);
     } catch (error) {
       console.error('Failed to fetch multi-region history:', error);
     } finally {
@@ -199,14 +193,8 @@ export default function Index() {
     const sorted = [...regionHistory]
       .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
     
-    const totalPoints = sorted.length;
-    const maxDataPoints = 20;
-    const step = Math.max(1, Math.floor(totalPoints / maxDataPoints));
-    
-    const sampledData = sorted.filter((_, idx) => idx % step === 0 || idx === totalPoints - 1);
-    
-    return sampledData.map((point) => ({
-      date: new Date(point.recorded_at).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short', year: 'numeric' }),
+    return sorted.map((point) => ({
+      date: new Date(point.recorded_at).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' }),
       price: parseFloat(point.price.toString())
     }));
   };
@@ -215,7 +203,7 @@ export default function Index() {
     setFilters({
       zones: [],
       searchQuery: '',
-      period: '180',
+      period: '90',
       tariffType: 'all',
       priceRange: [0, maxPrice]
     });
@@ -290,6 +278,13 @@ export default function Index() {
               regionHistory={regionHistory}
               historyLoading={historyLoading}
               getChartData={getChartData}
+              selectedRegion={selectedRegion}
+              onRegionChange={(regionId) => {
+                const region = regions.find(r => r.id === regionId);
+                if (region) setSelectedRegion(region);
+              }}
+              period={filters.period}
+              onPeriodChange={(period) => setFilters(prev => ({ ...prev, period }))}
             />
           </TabsContent>
 

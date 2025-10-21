@@ -1,8 +1,10 @@
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import type { Region, ZoneStat, PriceHistoryPoint } from './types';
+import type { Region, ZoneStat, PriceHistoryPoint, PeriodOption } from './types';
+import { PERIOD_LABELS } from './types';
 
 interface OverviewTabProps {
   regions: Region[];
@@ -10,6 +12,10 @@ interface OverviewTabProps {
   regionHistory: PriceHistoryPoint[];
   historyLoading: boolean;
   getChartData: () => any[];
+  selectedRegion: Region | null;
+  onRegionChange: (regionId: number) => void;
+  period: PeriodOption;
+  onPeriodChange: (period: PeriodOption) => void;
 }
 
 export default function OverviewTab({ 
@@ -17,15 +23,47 @@ export default function OverviewTab({
   zoneStats, 
   regionHistory, 
   historyLoading,
-  getChartData 
+  getChartData,
+  selectedRegion,
+  onRegionChange,
+  period,
+  onPeriodChange
 }: OverviewTabProps) {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold">Динамика цен по регионам</h3>
-            <Icon name="TrendingUp" className="text-primary" size={20} />
+          <div className="flex flex-col gap-4 mb-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold">Динамика цен по регионам</h3>
+              <Icon name="TrendingUp" className="text-primary" size={20} />
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <Select value={selectedRegion?.id.toString()} onValueChange={(value) => onRegionChange(parseInt(value))}>
+                <SelectTrigger className="w-[250px]">
+                  <SelectValue placeholder="Выберите регион" />
+                </SelectTrigger>
+                <SelectContent>
+                  {regions.map((region) => (
+                    <SelectItem key={region.id} value={region.id.toString()}>
+                      {region.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={period} onValueChange={onPeriodChange}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(PERIOD_LABELS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           {historyLoading ? (
             <div className="h-[300px] flex items-center justify-center">
@@ -35,7 +73,16 @@ export default function OverviewTab({
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={getChartData()}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" angle={-25} textAnchor="end" height={60} fontSize={11} />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="hsl(var(--muted-foreground))" 
+                  angle={-25} 
+                  textAnchor="end" 
+                  height={60} 
+                  fontSize={11}
+                  interval="preserveStartEnd"
+                  minTickGap={30}
+                />
                 <YAxis stroke="hsl(var(--muted-foreground))" />
                 <Tooltip 
                   contentStyle={{ 
@@ -44,7 +91,7 @@ export default function OverviewTab({
                     borderRadius: '8px'
                   }} 
                 />
-                <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={3} name="Цена (₽)" dot={false} />
+                <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Цена (₽)" dot={false} />
               </LineChart>
             </ResponsiveContainer>
           )}
