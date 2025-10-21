@@ -44,7 +44,7 @@ export default function ForecastTab({
       }
       
       const currentPrice = parseFloat(history[history.length - 1]?.price?.toString() || '0');
-      const predictedPrice = prediction.predictions[prediction.predictions.length - 1]?.predicted || currentPrice;
+      const predictedPrice = prediction.predictions[prediction.predictions.length - 1]?.predictedPrice || currentPrice;
       const changePercent = ((predictedPrice - currentPrice) / currentPrice) * 100;
       
       return {
