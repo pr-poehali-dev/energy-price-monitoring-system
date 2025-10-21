@@ -246,9 +246,15 @@ export default function Index() {
     const sorted = [...regionHistory]
       .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
     
-    const allDates = sorted.map(p => p.recorded_at);
+    // Фильтруем по выбранному периоду для отображения
+    const daysFilter = parseInt(filters.period);
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - daysFilter);
     
-    return sorted.map((point) => ({
+    const filtered = sorted.filter(point => new Date(point.recorded_at) >= cutoffDate);
+    const allDates = filtered.map(p => p.recorded_at);
+    
+    return filtered.map((point) => ({
       date: formatDateForChart(point.recorded_at, allDates, language as 'ru' | 'en'),
       price: parseFloat(point.price.toString())
     }));
