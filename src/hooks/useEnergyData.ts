@@ -22,16 +22,18 @@ export function useEnergyData(language: 'ru' | 'en') {
       const response = await fetch(API_URL);
       const data = await response.json();
       
-      const formattedRegions = data.regions.map((r: any) => ({
-        id: r.id,
-        name: r.name,
-        zone: r.zone,
-        population: parseFloat(r.population),
-        current_price: parseFloat(r.current_price),
-        change: r.change,
-        last_updated: r.last_updated,
-        cities: getCitiesForRegion(r.name)
-      }));
+      const formattedRegions = data.regions
+        .map((r: any) => ({
+          id: r.id,
+          name: r.name,
+          zone: r.zone,
+          population: parseFloat(r.population),
+          current_price: parseFloat(r.current_price),
+          change: r.change,
+          last_updated: r.last_updated,
+          cities: getCitiesForRegion(r.name)
+        }))
+        .filter((r: any) => !isNaN(r.current_price) && r.current_price != null);
       
       const formattedZones = data.zones.map((z: any) => ({
         zone: z.zone,
