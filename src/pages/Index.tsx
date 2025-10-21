@@ -158,7 +158,7 @@ export default function Index() {
               filters={filters}
               onFiltersChange={setFilters}
               onReset={resetFilters}
-              availableZones={Array.from(new Set(regions.map(r => r.zone)))}
+              zoneStats={zoneStats}
               maxPrice={maxPrice}
             />
           </TabsContent>
