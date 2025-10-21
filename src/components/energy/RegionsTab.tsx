@@ -104,6 +104,29 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
               <p className="text-xl font-semibold">{(selectedRegion.population * 450).toFixed(0)} МВт⋅ч</p>
               <p className="text-xs text-muted-foreground mt-1">ориентировочно</p>
             </div>
+
+            {selectedRegion.cities && selectedRegion.cities.length > 0 && (
+              <div className="border-t pt-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Icon name="Building2" size={18} className="text-primary" />
+                  <p className="text-sm font-semibold">Крупные города</p>
+                </div>
+                <div className="space-y-2">
+                  {selectedRegion.cities.map((city, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                      <div>
+                        <p className="text-sm font-medium">{city.name}</p>
+                        <p className="text-xs text-muted-foreground">{city.population} млн чел.</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-base font-mono font-bold">{city.price.toFixed(2)} ₽</p>
+                        <p className="text-xs text-muted-foreground">за кВт⋅ч</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </Card>

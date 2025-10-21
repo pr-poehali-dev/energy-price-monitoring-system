@@ -1,3 +1,9 @@
+export interface City {
+  name: string;
+  price: number;
+  population: number;
+}
+
 export interface Region {
   id: number;
   name: string;
@@ -6,6 +12,7 @@ export interface Region {
   current_price: number;
   change: number;
   last_updated?: string;
+  cities?: City[];
 }
 
 export interface ZoneStat {

@@ -10,6 +10,7 @@ import CompareTab from '@/components/energy/CompareTab';
 import FilterPanel from '@/components/energy/FilterPanel';
 import type { Region, ZoneStat, PriceHistoryPoint, Filters } from '@/components/energy/types';
 import { API_URL } from '@/components/energy/types';
+import { getCitiesForRegion } from '@/utils/citiesData';
 
 export default function Index() {
   const [regions, setRegions] = useState<Region[]>([]);
@@ -85,7 +86,8 @@ export default function Index() {
         population: parseFloat(r.population),
         current_price: parseFloat(r.current_price),
         change: r.change,
-        last_updated: r.last_updated
+        last_updated: r.last_updated,
+        cities: getCitiesForRegion(r.name)
       }));
       
       const formattedZones = data.zones.map((z: any) => ({
@@ -187,18 +189,10 @@ export default function Index() {
           </div>
         </header>
 
-        <FilterPanel 
-          filters={filters}
-          onFiltersChange={setFilters}
-          zoneStats={zoneStats}
-          maxPrice={maxPrice}
-          onReset={resetFilters}
-        />
-
         <StatsCards regions={filteredRegions} />
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full md:w-auto grid-cols-4 md:inline-flex">
+          <TabsList className="grid w-full md:w-auto grid-cols-5 md:inline-flex">
             <TabsTrigger value="overview" className="gap-2">
               <Icon name="LayoutDashboard" size={16} />
               <span className="hidden md:inline">Обзор</span>
@@ -214,6 +208,10 @@ export default function Index() {
             <TabsTrigger value="compare" className="gap-2">
               <Icon name="BarChart3" size={16} />
               <span className="hidden md:inline">Сравнение</span>
+            </TabsTrigger>
+            <TabsTrigger value="filters" className="gap-2">
+              <Icon name="SlidersHorizontal" size={16} />
+              <span className="hidden md:inline">Фильтры</span>
             </TabsTrigger>
           </TabsList>
 
@@ -247,6 +245,16 @@ export default function Index() {
 
           <TabsContent value="compare">
             <CompareTab zoneStats={zoneStats} />
+          </TabsContent>
+
+          <TabsContent value="filters">
+            <FilterPanel 
+              filters={filters}
+              onFiltersChange={setFilters}
+              zoneStats={zoneStats}
+              maxPrice={maxPrice}
+              onReset={resetFilters}
+            />
           </TabsContent>
         </Tabs>
       </div>
