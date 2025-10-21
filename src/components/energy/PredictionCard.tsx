@@ -23,6 +23,7 @@ export default function PredictionCard({
 }: PredictionCardProps) {
   const { t, language } = useLanguage();
   const [daysAhead, setDaysAhead] = useState(initialDaysAhead);
+  
   if (regionHistory.length < 10) {
     return (
       <Card className="p-6">

@@ -50,9 +50,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 FROM t_p67469144_energy_price_monitor.price_history ph
                 JOIN t_p67469144_energy_price_monitor.regions r ON ph.region_id = r.id
                 WHERE r.id = %s
-                    AND ph.recorded_at >= NOW() - INTERVAL '1 day' * %s
                 ORDER BY ph.recorded_at ASC
-            ''', (region_id, days))
+            ''', (region_id,))
             
             history = [dict(row) for row in cursor.fetchall()]
             
