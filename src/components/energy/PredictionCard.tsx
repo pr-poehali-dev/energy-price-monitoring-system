@@ -176,6 +176,20 @@ export default function PredictionCard({
           >
             {t('prediction.period.oneYear')}
           </Button>
+          <Button
+            size="sm"
+            variant={daysAhead === 730 ? 'default' : 'outline'}
+            onClick={() => setDaysAhead(730)}
+          >
+            {t('prediction.period.twoYears')}
+          </Button>
+          <Button
+            size="sm"
+            variant={daysAhead === 1095 ? 'default' : 'outline'}
+            onClick={() => setDaysAhead(1095)}
+          >
+            {t('prediction.period.threeYears')}
+          </Button>
         </div>
       </div>
 
