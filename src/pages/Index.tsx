@@ -138,11 +138,28 @@ export default function Index() {
             <AnalyticsTab
               regions={filteredRegions}
               selectedRegions={selectedAnalyticsRegions}
-              onRegionsChange={setSelectedAnalyticsRegions}
+              onSelectedRegionsChange={setSelectedAnalyticsRegions}
               multiRegionData={multiRegionData}
               multiRegionLoading={multiRegionLoading}
               period={filters.period}
               onPeriodChange={(period) => setFilters(prev => ({ ...prev, period }))}
+              regionHistory={regionHistory}
+              historyLoading={historyLoading}
+              calculateTrend={(history) => {
+                if (history.length < 2) return t('trend.stable');
+                const firstPrice = history[0]?.avg_price || 0;
+                const lastPrice = history[history.length - 1]?.avg_price || 0;
+                const change = ((lastPrice - firstPrice) / firstPrice) * 100;
+                if (Math.abs(change) < 1) return t('trend.stable');
+                if (change > 10) return t('trend.risingSignificantly');
+                if (change > 5) return t('trend.risingNoticeably');
+                if (change > 0) return t('trend.risingSlightly');
+                if (change < -10) return t('trend.fallingSignificantly');
+                if (change < -5) return t('trend.fallingNoticeably');
+                return t('trend.fallingSlightly');
+              }}
+              getChartData={getChartData}
+              selectedRegion={selectedRegion}
             />
           </TabsContent>
 
