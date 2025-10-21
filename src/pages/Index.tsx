@@ -8,6 +8,7 @@ import RegionsTab from '@/components/energy/RegionsTab';
 import AnalyticsTab from '@/components/energy/AnalyticsTab';
 import CompareTab from '@/components/energy/CompareTab';
 import FilterPanel from '@/components/energy/FilterPanel';
+import MapTab from '@/components/energy/MapTab';
 import type { Region, ZoneStat, PriceHistoryPoint, Filters } from '@/components/energy/types';
 import { API_URL } from '@/components/energy/types';
 import { getCitiesForRegion } from '@/utils/citiesData';
@@ -192,10 +193,14 @@ export default function Index() {
         <StatsCards regions={filteredRegions} />
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full md:w-auto grid-cols-5 md:inline-flex">
+          <TabsList className="grid w-full md:w-auto grid-cols-3 md:grid-cols-6 md:inline-flex gap-1">
             <TabsTrigger value="overview" className="gap-2">
               <Icon name="LayoutDashboard" size={16} />
               <span className="hidden md:inline">Обзор</span>
+            </TabsTrigger>
+            <TabsTrigger value="map" className="gap-2">
+              <Icon name="MapPinned" size={16} />
+              <span className="hidden md:inline">Карта</span>
             </TabsTrigger>
             <TabsTrigger value="regions" className="gap-2">
               <Icon name="Map" size={16} />
@@ -222,6 +227,13 @@ export default function Index() {
               regionHistory={regionHistory}
               historyLoading={historyLoading}
               getChartData={getChartData}
+            />
+          </TabsContent>
+
+          <TabsContent value="map">
+            <MapTab 
+              regions={filteredRegions}
+              onSelectRegion={setSelectedRegion}
             />
           </TabsContent>
 
