@@ -29,7 +29,7 @@ export interface PriceHistoryPoint {
 export interface Filters {
   zones: string[];
   searchQuery: string;
-  period: '30' | '90' | '180' | '365';
+  period: '30' | '90' | '180' | '365' | '730' | '1095';
   tariffType: 'all' | 'growing' | 'decreasing' | 'stable';
   priceRange: [number, number];
 }

@@ -47,11 +47,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     ph.price,
                     ph.recorded_at,
                     ph.source
-                FROM price_history ph
-                JOIN regions r ON ph.region_id = r.id
+                FROM t_p67469144_energy_price_monitor.price_history ph
+                JOIN t_p67469144_energy_price_monitor.regions r ON ph.region_id = r.id
                 WHERE r.id = %s
-                    AND ph.recorded_at >= NOW() - INTERVAL '%s days'
-                ORDER BY ph.recorded_at DESC
+                    AND ph.recorded_at >= NOW() - INTERVAL '1 day' * %s
+                ORDER BY ph.recorded_at ASC
             ''', (region_id, days))
             
             history = [dict(row) for row in cursor.fetchall()]
@@ -62,9 +62,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     r.name,
                     r.zone,
                     r.population,
-                    (SELECT price FROM price_history WHERE region_id = r.id ORDER BY recorded_at DESC LIMIT 1) as current_price,
-                    (SELECT price FROM price_history WHERE region_id = r.id ORDER BY recorded_at ASC LIMIT 1) as first_price
-                FROM regions r
+                    (SELECT price FROM t_p67469144_energy_price_monitor.price_history WHERE region_id = r.id ORDER BY recorded_at DESC LIMIT 1) as current_price,
+                    (SELECT price FROM t_p67469144_energy_price_monitor.price_history WHERE region_id = r.id ORDER BY recorded_at ASC LIMIT 1) as first_price
+                FROM t_p67469144_energy_price_monitor.regions r
                 WHERE r.id = %s
             ''', (region_id,))
             
@@ -100,10 +100,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 r.population,
                 ph.price as current_price,
                 ph.recorded_at as last_updated
-            FROM regions r
+            FROM t_p67469144_energy_price_monitor.regions r
             LEFT JOIN LATERAL (
                 SELECT price, recorded_at
-                FROM price_history
+                FROM t_p67469144_energy_price_monitor.price_history
                 WHERE region_id = r.id
                 ORDER BY recorded_at DESC
                 LIMIT 1
@@ -116,7 +116,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         for region in regions:
             cursor.execute('''
                 SELECT price 
-                FROM price_history 
+                FROM t_p67469144_energy_price_monitor.price_history 
                 WHERE region_id = %s 
                 ORDER BY recorded_at ASC 
                 LIMIT 1
@@ -136,11 +136,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 r.zone,
                 AVG(ph.price) as avg_price,
                 COUNT(DISTINCT r.id) as region_count
-            FROM regions r
-            JOIN price_history ph ON r.id = ph.region_id
+            FROM t_p67469144_energy_price_monitor.regions r
+            JOIN t_p67469144_energy_price_monitor.price_history ph ON r.id = ph.region_id
             WHERE ph.recorded_at = (
                 SELECT MAX(recorded_at) 
-                FROM price_history 
+                FROM t_p67469144_energy_price_monitor.price_history 
                 WHERE region_id = r.id
             )
             GROUP BY r.zone

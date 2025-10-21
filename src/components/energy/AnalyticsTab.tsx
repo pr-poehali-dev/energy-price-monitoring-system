@@ -1,5 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { Region, PriceHistoryPoint } from './types';
@@ -10,6 +11,8 @@ interface AnalyticsTabProps {
   historyLoading: boolean;
   calculateTrend: (history: PriceHistoryPoint[]) => string;
   getChartData: () => any[];
+  period: string;
+  onPeriodChange: (period: string) => void;
 }
 
 export default function AnalyticsTab({ 
@@ -17,19 +20,78 @@ export default function AnalyticsTab({
   regionHistory, 
   historyLoading,
   calculateTrend,
-  getChartData 
+  getChartData,
+  period,
+  onPeriodChange
 }: AnalyticsTabProps) {
+  const getPeriodLabel = (days: string) => {
+    switch(days) {
+      case '30': return '1 месяц';
+      case '90': return '3 месяца';
+      case '180': return '6 месяцев';
+      case '365': return '1 год';
+      case '730': return '2 года';
+      case '1095': return '3 года';
+      default: return days + ' дней';
+    }
+  };
   return (
     <div className="space-y-6 animate-fade-in">
       <Card className="p-6">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-semibold">Исторические данные цен</h3>
           <Icon name="Calendar" className="text-primary" size={20} />
+        </div>
+        
+        <div className="flex items-center gap-2 mb-6 flex-wrap">
+          <span className="text-sm text-muted-foreground">Период:</span>
+          <Button 
+            size="sm" 
+            variant={period === '30' ? 'default' : 'outline'}
+            onClick={() => onPeriodChange('30')}
+          >
+            1 месяц
+          </Button>
+          <Button 
+            size="sm" 
+            variant={period === '90' ? 'default' : 'outline'}
+            onClick={() => onPeriodChange('90')}
+          >
+            3 месяца
+          </Button>
+          <Button 
+            size="sm" 
+            variant={period === '180' ? 'default' : 'outline'}
+            onClick={() => onPeriodChange('180')}
+          >
+            6 месяцев
+          </Button>
+          <Button 
+            size="sm" 
+            variant={period === '365' ? 'default' : 'outline'}
+            onClick={() => onPeriodChange('365')}
+          >
+            1 год
+          </Button>
+          <Button 
+            size="sm" 
+            variant={period === '730' ? 'default' : 'outline'}
+            onClick={() => onPeriodChange('730')}
+          >
+            2 года
+          </Button>
+          <Button 
+            size="sm" 
+            variant={period === '1095' ? 'default' : 'outline'}
+            onClick={() => onPeriodChange('1095')}
+          >
+            3 года
+          </Button>
         </div>
         <div className="mb-4 p-4 rounded-lg bg-muted/50">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Тренд за 180 дней</p>
+              <p className="text-sm text-muted-foreground">Тренд за {getPeriodLabel(period)}</p>
               <p className="text-2xl font-bold mt-1">{calculateTrend(regionHistory)}</p>
             </div>
             <div className="text-right">
@@ -52,7 +114,7 @@ export default function AnalyticsTab({
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+              <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" height={80} />
               <YAxis stroke="hsl(var(--muted-foreground))" />
               <Tooltip 
                 contentStyle={{ 

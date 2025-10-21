@@ -138,13 +138,17 @@ export default function Index() {
     if (regionHistory.length === 0) return [];
     
     const sorted = [...regionHistory]
-      .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime())
-      .slice(-6);
+      .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
     
-    return sorted.map((point, idx) => ({
-      month: new Date(point.recorded_at).toLocaleDateString('ru-RU', { month: 'short' }),
-      price: parseFloat(point.price.toString()),
-      index: idx
+    const totalPoints = sorted.length;
+    const maxDataPoints = 20;
+    const step = Math.max(1, Math.floor(totalPoints / maxDataPoints));
+    
+    const sampledData = sorted.filter((_, idx) => idx % step === 0 || idx === totalPoints - 1);
+    
+    return sampledData.map((point) => ({
+      date: new Date(point.recorded_at).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short', year: 'numeric' }),
+      price: parseFloat(point.price.toString())
     }));
   };
 
@@ -252,6 +256,8 @@ export default function Index() {
               historyLoading={historyLoading}
               calculateTrend={calculateTrend}
               getChartData={getChartData}
+              period={filters.period}
+              onPeriodChange={(period) => setFilters(prev => ({ ...prev, period: period as Filters['period'] }))}
             />
           </TabsContent>
 
