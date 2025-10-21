@@ -33,10 +33,25 @@ export default function ForecastTab({
   const regionPredictions = regions
     .filter(r => r.id !== selectedRegion.id)
     .map(region => {
-      const history = allRegionsHistory.get(region.id);
+      let history = allRegionsHistory.get(region.id);
       if (!history || history.length < 10) {
         return null;
       }
+      
+      // Агрегируем мультитарифы - берём среднее за день
+      const groupedByDate = new Map<string, { prices: number[], point: typeof history[0] }>();
+      history.forEach(point => {
+        const dateKey = point.recorded_at.split('T')[0];
+        if (!groupedByDate.has(dateKey)) {
+          groupedByDate.set(dateKey, { prices: [], point });
+        }
+        groupedByDate.get(dateKey)!.prices.push(parseFloat(point.price.toString()));
+      });
+      
+      history = Array.from(groupedByDate.values()).map(({ prices, point }) => ({
+        ...point,
+        price: prices.reduce((sum, p) => sum + p, 0) / prices.length
+      }));
       
       const prediction = predictPrices(history, daysAhead);
       if (prediction.predictions.length === 0) {
