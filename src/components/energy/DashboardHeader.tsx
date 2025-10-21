@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import CronSetupDialog from '@/components/CronSetupDialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -44,7 +45,8 @@ export default function DashboardHeader() {
         </h1>
         <p className="text-muted-foreground mt-1">{t('app.subtitle')}</p>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2 md:gap-3">
+        <CronSetupDialog />
         <Button 
           onClick={handleSync}
           disabled={syncing}

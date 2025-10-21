@@ -1,0 +1,5 @@
+{
+  "schedule": "0 3 * * *",
+  "timezone": "Europe/Moscow",
+  "description": "Daily tariff sync at 3:00 AM Moscow time"
+}
