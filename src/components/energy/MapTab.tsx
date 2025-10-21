@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import RussiaMap from './RussiaMap';
 import type { Region } from './types';
 import { PERIOD_LABELS } from './types';
 
@@ -56,6 +57,8 @@ export default function MapTab({ regions, onSelectRegion, period = '90', onPerio
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <RussiaMap regions={regions} onSelectRegion={onSelectRegion} />
+      
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 p-6">
           <div className="flex items-center justify-between mb-4">
