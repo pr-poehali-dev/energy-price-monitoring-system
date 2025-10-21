@@ -49,6 +49,24 @@ export default function PredictionCard({
     filteredHistory = filteredHistory.filter(point => point.time_zone === timeZone);
   }
   
+  // Если выбраны все тарифы, агрегируем по датам (берём среднее)
+  if (tariffType === 'all') {
+    const groupedByDate = new Map<string, { prices: number[], point: typeof filteredHistory[0] }>();
+    
+    filteredHistory.forEach(point => {
+      const dateKey = point.recorded_at.split('T')[0];
+      if (!groupedByDate.has(dateKey)) {
+        groupedByDate.set(dateKey, { prices: [], point });
+      }
+      groupedByDate.get(dateKey)!.prices.push(parseFloat(point.price.toString()));
+    });
+    
+    filteredHistory = Array.from(groupedByDate.values()).map(({ prices, point }) => ({
+      ...point,
+      price: prices.reduce((sum, p) => sum + p, 0) / prices.length
+    }));
+  }
+  
   const prediction = useMemo(() => {
     return predictPrices(filteredHistory, daysAhead);
   }, [filteredHistory, daysAhead]);
