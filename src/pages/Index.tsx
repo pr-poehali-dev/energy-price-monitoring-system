@@ -130,6 +130,7 @@ export default function Index() {
           <TabsContent value="regions">
             <RegionsTab 
               regions={filteredRegions}
+              selectedRegion={selectedRegion}
               onSelectRegion={setSelectedRegion}
             />
           </TabsContent>

@@ -16,7 +16,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 interface RegionsTabProps {
   regions: Region[];
-  selectedRegion: Region;
+  selectedRegion: Region | null;
   onSelectRegion: (region: Region) => void;
 }
 
@@ -151,14 +151,14 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
               key={region.id}
               onClick={() => onSelectRegion(region)}
               className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md ${
-                selectedRegion.id === region.id 
+                selectedRegion?.id === region.id 
                   ? 'border-primary bg-primary/5' 
                   : 'border-border hover:border-primary/50'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Icon name="MapPin" className={selectedRegion.id === region.id ? 'text-primary' : 'text-muted-foreground'} size={18} />
+                  <Icon name="MapPin" className={selectedRegion?.id === region.id ? 'text-primary' : 'text-muted-foreground'} size={18} />
                   <div>
                     <p className="font-medium">{region.name}</p>
                     <p className="text-xs text-muted-foreground">{region.zone}</p>
@@ -195,6 +195,7 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
           <Icon name="Info" className="text-primary" size={24} />
           <h3 className="text-xl font-semibold">{t('regions.details')}</h3>
         </div>
+        {selectedRegion ? (
         <div className="space-y-6">
           <div>
             <p className="text-2xl font-bold mb-1">{selectedRegion.name}</p>
@@ -264,6 +265,12 @@ export default function RegionsTab({ regions, selectedRegion, onSelectRegion }: 
             )}
           </div>
         </div>
+        ) : (
+          <div className="text-center py-12">
+            <Icon name="MapPin" size={48} className="mx-auto text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">{t('overview.selectRegion')}</p>
+          </div>
+        )}
       </Card>
     </div>
   );
