@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "Get historical tariffs data",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "tariffs_count": 512,
+        "years_covered": "2020-2025",
+        "regions_count": 87
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

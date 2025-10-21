@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "name": "Load historical tariffs to database",
+      "method": "POST",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "loaded": 512,
+        "total": 512
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
