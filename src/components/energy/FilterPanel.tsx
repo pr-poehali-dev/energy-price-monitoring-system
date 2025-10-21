@@ -44,6 +44,7 @@ export default function FilterPanel({
     (filters.searchQuery ? 1 : 0) + 
     (filters.tariffType !== 'all' ? 1 : 0) +
     (filters.tariffStructure !== 'all' ? 1 : 0) +
+    (filters.timeZone && filters.timeZone !== 'all' ? 1 : 0) +
     (filters.consumerType !== 'all' ? 1 : 0) +
     (filters.priceRange[0] > 0 || filters.priceRange[1] < maxPrice ? 1 : 0);
 
@@ -156,6 +157,33 @@ export default function FilterPanel({
             </SelectContent>
           </Select>
         </div>
+
+        {(filters.tariffStructure === 'two_zone' || filters.tariffStructure === 'three_zone') && (
+          <div>
+            <label className="text-sm font-medium mb-2 block">Временная зона</label>
+            <Select value={filters.timeZone || 'all'} onValueChange={(value: any) => updateFilter('timeZone', value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Все зоны</SelectItem>
+                {filters.tariffStructure === 'two_zone' && (
+                  <>
+                    <SelectItem value="day">День</SelectItem>
+                    <SelectItem value="night">Ночь</SelectItem>
+                  </>
+                )}
+                {filters.tariffStructure === 'three_zone' && (
+                  <>
+                    <SelectItem value="peak">Пик</SelectItem>
+                    <SelectItem value="half_peak">Полупик</SelectItem>
+                    <SelectItem value="night">Ночь</SelectItem>
+                  </>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         <div>
           <label className="text-sm font-medium mb-2 block">Тип потребителя</label>

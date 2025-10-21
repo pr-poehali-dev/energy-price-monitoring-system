@@ -41,6 +41,7 @@ export default function Index() {
     period: '90',
     tariffType: 'all',
     tariffStructure: 'all',
+    timeZone: 'all',
     consumerType: 'all',
     priceRange: [0, maxPrice]
   });
@@ -267,6 +268,10 @@ export default function Index() {
       filteredByTariff = filteredByTariff.filter(p => p.tariff_type === filters.tariffStructure);
     }
     
+    if (filters.timeZone && filters.timeZone !== 'all') {
+      filteredByTariff = filteredByTariff.filter(p => p.time_zone === filters.timeZone);
+    }
+    
     if (filters.consumerType !== 'all') {
       filteredByTariff = filteredByTariff.filter(p => p.consumer_type === filters.consumerType);
     }
@@ -315,6 +320,7 @@ export default function Index() {
       period: '90',
       tariffType: 'all',
       tariffStructure: 'all',
+      timeZone: 'all',
       consumerType: 'all',
       priceRange: [0, maxPrice]
     });

@@ -35,6 +35,7 @@ export interface Filters {
   period: '30' | '90' | '180' | '365' | '730' | '1095';
   tariffType: 'all' | 'growing' | 'decreasing' | 'stable';
   tariffStructure: 'all' | 'single' | 'two_zone' | 'three_zone';
+  timeZone?: 'all' | 'day' | 'night' | 'peak' | 'half_peak';
   consumerType: 'all' | 'standard' | 'electric_stove';
   priceRange: [number, number];
 }

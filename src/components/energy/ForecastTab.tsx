@@ -26,6 +26,8 @@ export default function ForecastTab({
   allRegionsHistory
 }: ForecastTabProps) {
   const [daysAhead] = useState(90);
+  const [selectedTariff, setSelectedTariff] = useState<'all' | 'single' | 'two_zone' | 'three_zone'>('all');
+  const [selectedTimeZone, setSelectedTimeZone] = useState<'all' | 'day' | 'night' | 'peak' | 'half_peak'>('all');
 
   // Рассчитываем прогноз для всех регионов
   const regionPredictions = regions
@@ -68,31 +70,77 @@ export default function ForecastTab({
   return (
     <div className="space-y-6 animate-fade-in">
       <Card className="p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-          <div>
-            <h3 className="text-xl font-semibold">Выберите регион для прогноза</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Прогнозирование на основе исторических данных
-            </p>
+        <div className="space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-xl font-semibold">Выберите регион для прогноза</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Прогнозирование на основе исторических данных
+              </p>
+            </div>
+            <Select 
+              value={selectedRegion.id.toString()} 
+              onValueChange={(value) => {
+                const region = regions.find(r => r.id === parseInt(value));
+                if (region) onSelectRegion(region);
+              }}
+            >
+              <SelectTrigger className="w-[300px]">
+                <SelectValue placeholder="Выберите регион" />
+              </SelectTrigger>
+              <SelectContent>
+                {regions.map((region) => (
+                  <SelectItem key={region.id} value={region.id.toString()}>
+                    {region.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <Select 
-            value={selectedRegion.id.toString()} 
-            onValueChange={(value) => {
-              const region = regions.find(r => r.id === parseInt(value));
-              if (region) onSelectRegion(region);
-            }}
-          >
-            <SelectTrigger className="w-[300px]">
-              <SelectValue placeholder="Выберите регион" />
-            </SelectTrigger>
-            <SelectContent>
-              {regions.map((region) => (
-                <SelectItem key={region.id} value={region.id.toString()}>
-                  {region.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Тип тарифа</label>
+              <Select value={selectedTariff} onValueChange={(value: any) => setSelectedTariff(value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Все тарифы</SelectItem>
+                  <SelectItem value="single">Одноставочный</SelectItem>
+                  <SelectItem value="two_zone">Двухзонный (день/ночь)</SelectItem>
+                  <SelectItem value="three_zone">Трёхзонный (пик/полупик/ночь)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {(selectedTariff === 'two_zone' || selectedTariff === 'three_zone') && (
+              <div>
+                <label className="text-sm font-medium mb-2 block">Временная зона</label>
+                <Select value={selectedTimeZone} onValueChange={(value: any) => setSelectedTimeZone(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Все зоны</SelectItem>
+                    {selectedTariff === 'two_zone' && (
+                      <>
+                        <SelectItem value="day">День</SelectItem>
+                        <SelectItem value="night">Ночь</SelectItem>
+                      </>
+                    )}
+                    {selectedTariff === 'three_zone' && (
+                      <>
+                        <SelectItem value="peak">Пик</SelectItem>
+                        <SelectItem value="half_peak">Полупик</SelectItem>
+                        <SelectItem value="night">Ночь</SelectItem>
+                      </>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
         </div>
       </Card>
 
@@ -110,6 +158,8 @@ export default function ForecastTab({
             regionName={selectedRegion.name}
             currentPrice={selectedRegion.current_price}
             daysAhead={daysAhead}
+            tariffType={selectedTariff}
+            timeZone={selectedTimeZone}
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

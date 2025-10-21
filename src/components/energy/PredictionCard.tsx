@@ -15,6 +15,8 @@ interface PredictionCardProps {
   currentPrice: number;
   daysAhead?: number;
   historicalPeriodDays?: number;
+  tariffType?: 'all' | 'single' | 'two_zone' | 'three_zone';
+  timeZone?: 'all' | 'day' | 'night' | 'peak' | 'half_peak';
 }
 
 export default function PredictionCard({ 
@@ -22,7 +24,9 @@ export default function PredictionCard({
   regionName, 
   currentPrice,
   daysAhead: initialDaysAhead = 90,
-  historicalPeriodDays
+  historicalPeriodDays,
+  tariffType = 'all',
+  timeZone = 'all'
 }: PredictionCardProps) {
   const { t, language } = useLanguage();
   const [daysAhead, setDaysAhead] = useState(initialDaysAhead);
@@ -33,6 +37,16 @@ export default function PredictionCard({
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - historicalPeriodDays);
     filteredHistory = regionHistory.filter(point => new Date(point.recorded_at) >= cutoffDate);
+  }
+  
+  // Фильтруем по типу тарифа
+  if (tariffType !== 'all') {
+    filteredHistory = filteredHistory.filter(point => point.tariff_type === tariffType);
+  }
+  
+  // Фильтруем по временной зоне
+  if (timeZone !== 'all') {
+    filteredHistory = filteredHistory.filter(point => point.time_zone === timeZone);
   }
   
   if (filteredHistory.length < 10) {
