@@ -81,6 +81,13 @@ export default function ForecastTab({
     .filter(p => p.trend === 'falling')
     .sort((a, b) => a.changePercent - b.changePercent)
     .slice(0, 5);
+  
+  console.log('📊 Predictions stats:', {
+    total: regionPredictions.length,
+    rising: topRisingPredictions.length,
+    falling: topFallingPredictions.length,
+    allTrends: regionPredictions.map(p => ({ name: p.region.name, trend: p.trend, change: p.changePercent.toFixed(1) }))
+  });
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -228,31 +235,38 @@ export default function ForecastTab({
                 </div>
               </div>
               <div className="space-y-3">
-                {topFallingPredictions.map((item, idx) => (
-                  <div
-                    key={item.region.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-secondary/10 hover:bg-secondary/20 transition-colors cursor-pointer"
-                    onClick={() => onSelectRegion(item.region)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center font-bold text-sm">
-                        {idx + 1}
-                      </div>
-                      <div>
-                        <p className="font-medium text-sm">{item.region.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Текущая: {item.currentPrice.toFixed(2)} ₽
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <Badge className="bg-secondary text-secondary-foreground text-xs">
-                        <Icon name="TrendingDown" size={12} className="mr-1" />
-                        {item.changePercent.toFixed(1)}%
-                      </Badge>
-                    </div>
+                {topFallingPredictions.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Icon name="TrendingUp" className="mx-auto mb-2" size={32} />
+                    <p className="text-sm">Все регионы показывают рост цен</p>
                   </div>
-                ))}
+                ) : (
+                  topFallingPredictions.map((item, idx) => (
+                    <div
+                      key={item.region.id}
+                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/10 hover:bg-secondary/20 transition-colors cursor-pointer"
+                      onClick={() => onSelectRegion(item.region)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center font-bold text-sm">
+                          {idx + 1}
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">{item.region.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Текущая: {item.currentPrice.toFixed(2)} ₽
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <Badge className="bg-secondary text-secondary-foreground text-xs">
+                          <Icon name="TrendingDown" size={12} className="mr-1" />
+                          {item.changePercent.toFixed(1)}%
+                        </Badge>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </Card>
           </div>
