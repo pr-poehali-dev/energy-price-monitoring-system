@@ -133,7 +133,7 @@ const translations: Record<Language, Record<string, string>> = {
     
     'prediction.title': 'Прогноз цен',
     'prediction.insufficientData': 'Недостаточно данных для прогноза',
-    'prediction.minDataPoints': 'Требуется минимум 3 точки данных',
+    'prediction.minDataPoints': 'Требуется минимум 10 точек данных',
     'prediction.period.oneMonth': '1 месяц',
     'prediction.period.threeMonths': '3 месяца',
     'prediction.period.sixMonths': '6 месяцев',
@@ -288,7 +288,7 @@ const translations: Record<Language, Record<string, string>> = {
     
     'prediction.title': 'Price Forecast',
     'prediction.insufficientData': 'Insufficient data for forecast',
-    'prediction.minDataPoints': 'Minimum 3 data points required',
+    'prediction.minDataPoints': 'Minimum 10 data points required',
     'prediction.period.oneMonth': '1 month',
     'prediction.period.threeMonths': '3 months',
     'prediction.period.sixMonths': '6 months',
