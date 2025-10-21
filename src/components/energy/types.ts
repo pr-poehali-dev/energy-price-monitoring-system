@@ -34,6 +34,8 @@ export interface Filters {
   searchQuery: string;
   period: '30' | '90' | '180' | '365' | '730' | '1095';
   tariffType: 'all' | 'growing' | 'decreasing' | 'stable';
+  tariffStructure: 'all' | 'single' | 'two_zone' | 'three_zone';
+  consumerType: 'all' | 'standard' | 'electric_stove';
   priceRange: [number, number];
 }
 

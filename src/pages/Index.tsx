@@ -40,6 +40,8 @@ export default function Index() {
     searchQuery: '',
     period: '90',
     tariffType: 'all',
+    tariffStructure: 'all',
+    consumerType: 'all',
     priceRange: [0, maxPrice]
   });
 
@@ -259,10 +261,19 @@ export default function Index() {
   const getChartData = () => {
     if (regionHistory.length === 0) return [];
     
-    const sorted = [...regionHistory]
+    let filteredByTariff = regionHistory;
+    
+    if (filters.tariffStructure !== 'all') {
+      filteredByTariff = filteredByTariff.filter(p => p.tariff_type === filters.tariffStructure);
+    }
+    
+    if (filters.consumerType !== 'all') {
+      filteredByTariff = filteredByTariff.filter(p => p.consumer_type === filters.consumerType);
+    }
+    
+    const sorted = [...filteredByTariff]
       .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
     
-    // Фильтруем по выбранному периоду для отображения
     const daysFilter = parseInt(filters.period);
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysFilter);
@@ -272,7 +283,10 @@ export default function Index() {
     
     return filtered.map((point) => ({
       date: formatDateForChart(point.recorded_at, allDates, language as 'ru' | 'en'),
-      price: parseFloat(point.price.toString())
+      price: parseFloat(point.price.toString()),
+      tariff: point.tariff_type,
+      timeZone: point.time_zone,
+      consumer: point.consumer_type
     }));
   };
 
@@ -282,6 +296,8 @@ export default function Index() {
       searchQuery: '',
       period: '90',
       tariffType: 'all',
+      tariffStructure: 'all',
+      consumerType: 'all',
       priceRange: [0, maxPrice]
     });
   };

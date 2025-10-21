@@ -43,6 +43,8 @@ export default function FilterPanel({
     filters.zones.length + 
     (filters.searchQuery ? 1 : 0) + 
     (filters.tariffType !== 'all' ? 1 : 0) +
+    (filters.tariffStructure !== 'all' ? 1 : 0) +
+    (filters.consumerType !== 'all' ? 1 : 0) +
     (filters.priceRange[0] > 0 || filters.priceRange[1] < maxPrice ? 1 : 0);
 
   return (
@@ -136,6 +138,35 @@ export default function FilterPanel({
                   Стабильные тарифы
                 </div>
               </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium mb-2 block">Структура тарифа</label>
+          <Select value={filters.tariffStructure} onValueChange={(value: any) => updateFilter('tariffStructure', value)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Все тарифы</SelectItem>
+              <SelectItem value="single">Одноставочный</SelectItem>
+              <SelectItem value="two_zone">Двухзонный (день/ночь)</SelectItem>
+              <SelectItem value="three_zone">Трёхзонный (пик/полупик/ночь)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium mb-2 block">Тип потребителя</label>
+          <Select value={filters.consumerType} onValueChange={(value: any) => updateFilter('consumerType', value)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Все потребители</SelectItem>
+              <SelectItem value="standard">Стандарт</SelectItem>
+              <SelectItem value="electric_stove">С электроплитой</SelectItem>
             </SelectContent>
           </Select>
         </div>

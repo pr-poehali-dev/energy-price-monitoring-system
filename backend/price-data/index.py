@@ -46,11 +46,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     r.population,
                     ph.price,
                     ph.recorded_at,
-                    ph.source
+                    ph.source,
+                    ph.tariff_type,
+                    ph.time_zone,
+                    ph.consumer_type
                 FROM t_p67469144_energy_price_monitor.price_history ph
                 JOIN t_p67469144_energy_price_monitor.regions r ON ph.region_id = r.id
                 WHERE r.id = %s
-                ORDER BY ph.recorded_at ASC
+                ORDER BY ph.recorded_at ASC, ph.tariff_type, ph.time_zone
             ''', (region_id,))
             
             history = [dict(row) for row in cursor.fetchall()]
