@@ -64,12 +64,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(database_url)
     cursor = conn.cursor()
     
+    cursor.execute("SELECT id, name FROM t_p67469144_energy_price_monitor.regions")
+    regions_map = {row[1]: row[0] for row in cursor.fetchall()}
+    
     updated_count = 0
     skipped_count = 0
     errors = []
+    insert_values = []
     
     for tariff in tariffs:
-        region_name = tariff.get('region_name', '').replace("'", "''")
+        region_name = tariff.get('region_name', '')
         price = tariff.get('tariff_rub_per_kwh')
         valid_from = tariff.get('valid_from', datetime.now().date().isoformat())
         source = tariff.get('source', 'official').replace("'", "''")
@@ -78,26 +82,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             skipped_count += 1
             continue
         
-        cursor.execute(
-            f"SELECT id FROM t_p67469144_energy_price_monitor.regions WHERE name = '{region_name}'"
-        )
-        region_row = cursor.fetchone()
+        region_id = regions_map.get(region_name)
         
-        if not region_row:
+        if not region_id:
             errors.append(f'Region not found: {region_name}')
             skipped_count += 1
             continue
         
-        region_id = region_row[0]
-        
-        cursor.execute(
-            f"""
+        insert_values.append(f"({region_id}, {price}, '{valid_from}', '{source}')")
+        updated_count += 1
+    
+    if insert_values:
+        batch_insert_query = f"""
             INSERT INTO t_p67469144_energy_price_monitor.price_history 
             (region_id, price, recorded_at, source)
-            VALUES ({region_id}, {price}, '{valid_from}', '{source}')
-            """
-        )
-        updated_count += 1
+            VALUES {','.join(insert_values)}
+        """
+        cursor.execute(batch_insert_query)
     
     conn.commit()
     cursor.close()
