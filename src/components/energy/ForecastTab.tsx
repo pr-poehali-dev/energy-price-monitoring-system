@@ -32,9 +32,15 @@ export default function ForecastTab({
     .filter(r => r.id !== selectedRegion.id)
     .map(region => {
       const history = allRegionsHistory.get(region.id);
-      if (!history || history.length < 7) return null;
+      if (!history || history.length < 10) {
+        return null;
+      }
       
       const prediction = predictPrices(history, daysAhead);
+      if (prediction.predictions.length === 0) {
+        return null;
+      }
+      
       const currentPrice = parseFloat(history[history.length - 1]?.price?.toString() || '0');
       const predictedPrice = prediction.predictions[prediction.predictions.length - 1]?.predicted || currentPrice;
       const changePercent = ((predictedPrice - currentPrice) / currentPrice) * 100;

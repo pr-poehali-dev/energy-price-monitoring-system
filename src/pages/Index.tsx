@@ -157,22 +157,38 @@ export default function Index() {
     try {
       const historyMap = new Map<number, PriceHistoryPoint[]>();
       
-      // Загружаем историю для первых 20 регионов (чтобы не перегружать API)
-      const regionsToFetch = regions.slice(0, 20);
+      // Загружаем историю партиями по 10 регионов, чтобы не перегружать backend
+      const batchSize = 10;
+      const batches = [];
       
-      const promises = regionsToFetch.map(region =>
-        fetch(`${API_URL}?region_id=${region.id}&days=${days}`)
-          .then(r => r.json())
-          .then(data => ({ id: region.id, history: data.history || [] }))
-          .catch(() => ({ id: region.id, history: [] }))
-      );
+      for (let i = 0; i < regions.length; i += batchSize) {
+        batches.push(regions.slice(i, i + batchSize));
+      }
       
-      const results = await Promise.all(promises);
+      for (const batch of batches) {
+        const promises = batch.map(region =>
+          fetch(`${API_URL}?region_id=${region.id}&days=${days}`)
+            .then(r => r.json())
+            .then(data => ({ id: region.id, history: data.history || [] }))
+            .catch(err => {
+              console.error(`Failed to fetch history for region ${region.id}:`, err);
+              return { id: region.id, history: [] };
+            })
+        );
+        
+        const results = await Promise.all(promises);
+        
+        results.forEach(({ id, history }) => {
+          if (history.length > 0) {
+            historyMap.set(id, history);
+          }
+        });
+        
+        // Небольшая задержка между партиями
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
       
-      results.forEach(({ id, history }) => {
-        historyMap.set(id, history);
-      });
-      
+      console.log(`Loaded history for ${historyMap.size} regions out of ${regions.length}`);
       setAllRegionsHistory(historyMap);
     } catch (error) {
       console.error('Failed to fetch all regions history:', error);
