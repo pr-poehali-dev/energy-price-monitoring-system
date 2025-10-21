@@ -6,7 +6,7 @@ export default function DashboardTabs() {
   const { t } = useLanguage();
 
   return (
-    <TabsList className="grid w-full md:w-auto grid-cols-4 md:grid-cols-7 md:inline-flex gap-1">
+    <TabsList className="grid w-full md:w-auto grid-cols-4 md:grid-cols-8 md:inline-flex gap-1">
       <TabsTrigger value="overview" className="gap-2">
         <Icon name="LayoutDashboard" size={16} />
         <span className="hidden md:inline">{t('tabs.overview')}</span>
@@ -30,6 +30,10 @@ export default function DashboardTabs() {
       <TabsTrigger value="compare" className="gap-2">
         <Icon name="BarChart3" size={16} />
         <span className="hidden md:inline">{t('tabs.compare')}</span>
+      </TabsTrigger>
+      <TabsTrigger value="stats" className="gap-2">
+        <Icon name="Database" size={16} />
+        <span className="hidden md:inline">{t('tabs.stats')}</span>
       </TabsTrigger>
       <TabsTrigger value="filters" className="gap-2">
         <Icon name="SlidersHorizontal" size={16} />

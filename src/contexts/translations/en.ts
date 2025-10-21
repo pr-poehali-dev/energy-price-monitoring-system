@@ -16,6 +16,7 @@ export const en = {
   'tabs.regions': 'Regions',
   'tabs.analytics': 'Analytics',
   'tabs.compare': 'Compare',
+  'tabs.stats': 'Statistics',
   'tabs.filters': 'Filters',
   
   'overview.priceDynamics': 'Price Dynamics by Region',

@@ -16,6 +16,7 @@ export const ru = {
   'tabs.regions': 'Регионы',
   'tabs.analytics': 'Аналитика',
   'tabs.compare': 'Сравнение',
+  'tabs.stats': 'Статистика',
   'tabs.filters': 'Фильтры',
   
   'overview.priceDynamics': 'Динамика цен по регионам',

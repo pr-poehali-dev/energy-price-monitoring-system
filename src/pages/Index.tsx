@@ -10,6 +10,7 @@ import CompareTab from '@/components/energy/CompareTab';
 import FilterPanel from '@/components/energy/FilterPanel';
 import MapTab from '@/components/energy/MapTab';
 import ForecastTab from '@/components/energy/ForecastTab';
+import StatsTab from '@/components/energy/StatsTab';
 import DashboardHeader from '@/components/energy/DashboardHeader';
 import DashboardTabs from '@/components/energy/DashboardTabs';
 import { useEnergyData } from '@/hooks/useEnergyData';
@@ -169,6 +170,10 @@ export default function Index() {
               regions={filteredRegions}
               zoneStats={zoneStats}
             />
+          </TabsContent>
+
+          <TabsContent value="stats">
+            <StatsTab />
           </TabsContent>
 
           <TabsContent value="filters">
