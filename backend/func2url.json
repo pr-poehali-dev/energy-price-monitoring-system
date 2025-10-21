@@ -1,4 +1,5 @@
 {
+  "load-tariffs": "https://functions.poehali.dev/d45fad1d-6343-4930-9c0c-2f691378405f",
   "db-manage": "https://functions.poehali.dev/9a386a41-ad70-4d41-b906-6ba0b02f206c",
   "price-data": "https://functions.poehali.dev/0959059f-a220-4107-9cca-d2f58650ddf8"
 }
