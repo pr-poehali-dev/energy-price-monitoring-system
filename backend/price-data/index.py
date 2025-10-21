@@ -85,6 +85,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'success': True}),
                 'isBase64Encoded': False
             }
+        
+        cursor.close()
+        conn.close()
+        return {
+            'statusCode': 400,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({'error': 'Unknown action'}),
+            'isBase64Encoded': False
+        }
     
     if method == 'GET':
         params = event.get('queryStringParameters') or {}
