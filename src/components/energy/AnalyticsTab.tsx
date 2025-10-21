@@ -73,11 +73,10 @@ export default function AnalyticsTab({
             <Icon name="TrendingUp" className="text-destructive" size={24} />
             <h3 className="text-xl font-semibold">Самый высокий рост</h3>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
             {regions
               .filter(r => r.change > 0)
               .sort((a, b) => b.change - a.change)
-              .slice(0, 3)
               .map((region, idx) => (
                 <div key={region.id} className="flex items-center gap-4 p-4 rounded-lg bg-destructive/10">
                   <div className="w-8 h-8 rounded-full bg-destructive/20 flex items-center justify-center font-bold">
@@ -98,11 +97,10 @@ export default function AnalyticsTab({
             <Icon name="TrendingDown" className="text-secondary" size={24} />
             <h3 className="text-xl font-semibold">Самое большое снижение</h3>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
             {regions
               .filter(r => r.change < 0)
               .sort((a, b) => a.change - b.change)
-              .slice(0, 3)
               .map((region, idx) => (
                 <div key={region.id} className="flex items-center gap-4 p-4 rounded-lg bg-secondary/10">
                   <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center font-bold">

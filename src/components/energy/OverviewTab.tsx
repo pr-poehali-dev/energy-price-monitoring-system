@@ -75,13 +75,12 @@ export default function OverviewTab({
 
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-semibold">Топ регионов по изменению цены</h3>
+          <h3 className="text-xl font-semibold">Все регионы по изменению цены</h3>
           <Icon name="Activity" className="text-chart-4" size={20} />
         </div>
-        <div className="space-y-3">
+        <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
           {regions
             .sort((a, b) => Math.abs(b.change) - Math.abs(a.change))
-            .slice(0, 5)
             .map((region) => (
               <div key={region.id} className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                 <div className="flex items-center gap-4">
