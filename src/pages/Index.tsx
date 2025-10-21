@@ -383,6 +383,8 @@ export default function Index() {
               }}
               period={filters.period}
               onPeriodChange={(period) => setFilters(prev => ({ ...prev, period }))}
+              tariffStructure={filters.tariffStructure}
+              consumerType={filters.consumerType}
             />
           </TabsContent>
 

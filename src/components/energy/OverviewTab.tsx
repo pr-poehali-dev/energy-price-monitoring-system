@@ -25,6 +25,8 @@ interface OverviewTabProps {
   onRegionChange: (regionId: number) => void;
   period: PeriodOption;
   onPeriodChange: (period: PeriodOption) => void;
+  tariffStructure?: string;
+  consumerType?: string;
 }
 
 export default function OverviewTab({ 
@@ -36,15 +38,60 @@ export default function OverviewTab({
   selectedRegion,
   onRegionChange,
   period,
-  onPeriodChange
+  onPeriodChange,
+  tariffStructure = 'all',
+  consumerType = 'all'
 }: OverviewTabProps) {
+  const getTariffLabel = () => {
+    const parts: string[] = [];
+    
+    if (tariffStructure === 'single') parts.push('Одноставочный');
+    else if (tariffStructure === 'two_zone') parts.push('Двухзонный');
+    else if (tariffStructure === 'three_zone') parts.push('Трёхзонный');
+    
+    if (consumerType === 'electric_stove') parts.push('с электроплитой');
+    else if (consumerType === 'standard') parts.push('стандарт');
+    
+    return parts.length > 0 ? parts.join(', ') : 'все тарифы';
+  };
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (!active || !payload || !payload.length) return null;
+    
+    const data = payload[0].payload;
+    const timeZoneLabels: Record<string, string> = {
+      'day': 'День',
+      'night': 'Ночь',
+      'peak': 'Пик',
+      'half_peak': 'Полупик'
+    };
+    
+    return (
+      <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
+        <p className="text-sm font-medium mb-1">{data.date}</p>
+        <p className="text-lg font-bold text-primary">{data.price.toFixed(2)} ₽/кВт⋅ч</p>
+        {data.timeZone && (
+          <p className="text-xs text-muted-foreground mt-1">
+            {timeZoneLabels[data.timeZone] || data.timeZone}
+          </p>
+        )}
+      </div>
+    );
+  };
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
           <div className="flex flex-col gap-4 mb-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold">Динамика цен по регионам</h3>
+              <div>
+                <h3 className="text-xl font-semibold">Динамика цен по регионам</h3>
+                {(tariffStructure !== 'all' || consumerType !== 'all') && (
+                  <Badge variant="secondary" className="mt-1">
+                    {getTariffLabel()}
+                  </Badge>
+                )}
+              </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" disabled={historyLoading || regionHistory.length === 0}>
@@ -110,13 +157,7 @@ export default function OverviewTab({
                   minTickGap={30}
                 />
                 <YAxis stroke="hsl(var(--muted-foreground))" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
-                  }} 
-                />
+                <Tooltip content={<CustomTooltip />} />
                 <Line type="monotone" dataKey="price" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Цена (₽)" dot={false} />
               </LineChart>
             </ResponsiveContainer>

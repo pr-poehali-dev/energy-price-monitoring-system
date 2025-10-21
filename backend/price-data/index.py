@@ -52,7 +52,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     ph.consumer_type
                 FROM t_p67469144_energy_price_monitor.price_history ph
                 JOIN t_p67469144_energy_price_monitor.regions r ON ph.region_id = r.id
-                WHERE r.id = %s
+                WHERE r.id = %s AND ph.source != 'SYNTHETIC_OLD_DATA'
                 ORDER BY ph.recorded_at ASC, ph.tariff_type, ph.time_zone
             ''', (region_id,))
             
@@ -106,7 +106,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             LEFT JOIN LATERAL (
                 SELECT price, recorded_at
                 FROM t_p67469144_energy_price_monitor.price_history
-                WHERE region_id = r.id
+                WHERE region_id = r.id AND source != 'SYNTHETIC_OLD_DATA'
                 ORDER BY recorded_at DESC
                 LIMIT 1
             ) ph ON true
@@ -119,7 +119,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             cursor.execute('''
                 SELECT price 
                 FROM t_p67469144_energy_price_monitor.price_history 
-                WHERE region_id = %s 
+                WHERE region_id = %s AND source != 'SYNTHETIC_OLD_DATA'
                 ORDER BY recorded_at ASC 
                 LIMIT 1
             ''', (region['id'],))
@@ -140,10 +140,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 COUNT(DISTINCT r.id) as region_count
             FROM t_p67469144_energy_price_monitor.regions r
             JOIN t_p67469144_energy_price_monitor.price_history ph ON r.id = ph.region_id
-            WHERE ph.recorded_at = (
+            WHERE ph.source != 'SYNTHETIC_OLD_DATA' AND ph.recorded_at = (
                 SELECT MAX(recorded_at) 
                 FROM t_p67469144_energy_price_monitor.price_history 
-                WHERE region_id = r.id
+                WHERE region_id = r.id AND source != 'SYNTHETIC_OLD_DATA'
             )
             GROUP BY r.zone
             ORDER BY avg_price DESC
