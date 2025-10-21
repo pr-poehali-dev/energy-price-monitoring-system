@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "Get all regions",
+      "method": "POST",
+      "body": {
+        "action": "get_all_regions"
+      },
+      "expectedStatus": 200
+    },
+    {
+      "name": "Delete all prices",
+      "method": "POST",
+      "body": {
+        "action": "delete_all_prices"
+      },
+      "expectedStatus": 200
+    }
+  ]
+}

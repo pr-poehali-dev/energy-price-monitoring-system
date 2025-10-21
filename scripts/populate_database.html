@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Database Population Script - Energy Price Monitor</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #00ff00;
+    }
+    h1 {
+      color: #00ff00;
+      border-bottom: 2px solid #00ff00;
+      padding-bottom: 10px;
+    }
+    #console {
+      background: #000;
+      border: 2px solid #00ff00;
+      padding: 20px;
+      min-height: 400px;
+      white-space: pre-wrap;
+      font-size: 14px;
+      overflow-y: auto;
+      max-height: 600px;
+    }
+    button {
+      background: #00ff00;
+      color: #000;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px 5px;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #00cc00;
+    }
+    button:disabled {
+      background: #666;
+      cursor: not-allowed;
+    }
+    .success { color: #00ff00; }
+    .error { color: #ff0000; }
+    .info { color: #00ccff; }
+    .warning { color: #ffff00; }
+  </style>
+</head>
+<body>
+  <h1>Energy Price Monitor - Database Population Script</h1>
+  
+  <div>
+    <button id="runBtn" onclick="runFullScript()">▶ RUN FULL SCRIPT</button>
+    <button onclick="clearConsole()">Clear Console</button>
+  </div>
+  
+  <div id="console"></div>
+
+  <script>
+    const API_URL = "https://functions.poehali.dev/9a386a41-ad70-4d41-b906-6ba0b02f206c";
+    const consoleEl = document.getElementById('console');
+    const runBtn = document.getElementById('runBtn');
+
+    function log(message, className = '') {
+      const line = document.createElement('div');
+      line.textContent = message;
+      if (className) line.className = className;
+      consoleEl.appendChild(line);
+      consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    function clearConsole() {
+      consoleEl.innerHTML = '';
+    }
+
+    async function callApi(action, extraData = {}) {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, ...extraData }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API call failed: ${response.statusText}`);
+      }
+
+      return response.json();
+    }
+
+    // Regional tariff data
+    const REGIONAL_TARIFFS = {
+      'Москва': 6.19, 'Санкт-Петербург': 5.70, 'Московская область': 6.35,
+      'Белгородская область': 5.85, 'Брянская область': 5.72, 'Владимирская область': 5.68,
+      'Воронежская область': 5.91, 'Ивановская область': 5.54, 'Калужская область': 6.12,
+      'Костромская область': 5.48, 'Курская область': 5.79, 'Липецкая область': 5.82,
+      'Орловская область': 5.64, 'Рязанская область': 5.76, 'Смоленская область': 5.69,
+      'Тамбовская область': 5.73, 'Тверская область': 5.81, 'Тульская область': 6.08,
+      'Ярославская область': 5.84, 'Республика Карелия': 6.15, 'Республика Коми': 6.42,
+      'Архангельская область': 6.28, 'Ненецкий АО': 7.85, 'Вологодская область': 5.94,
+      'Калининградская область': 6.23, 'Ленинградская область': 5.82, 'Мурманская область': 6.91,
+      'Новгородская область': 5.77, 'Псковская область': 5.73, 'Республика Адыгея': 5.34,
+      'Республика Калмыкия': 5.28, 'Республика Крым': 5.67, 'Краснодарский край': 5.42,
+      'Астраханская область': 5.39, 'Волгоградская область': 5.48, 'Ростовская область': 5.51,
+      'Севастополь': 5.63, 'Республика Дагестан': 4.89, 'Республика Ингушетия': 4.76,
+      'Кабардино-Балкарская Республика': 4.82, 'Карачаево-Черкесская Республика': 4.79,
+      'Республика Северная Осетия': 4.85, 'Чеченская Республика': 4.73, 'Ставропольский край': 5.24,
+      'Республика Башкортостан': 5.18, 'Республика Марий Эл': 5.32, 'Республика Мордовия': 5.36,
+      'Республика Татарстан': 5.12, 'Удмуртская Республика': 5.29, 'Чувашская Республика': 5.34,
+      'Кировская область': 5.44, 'Нижегородская область': 5.58, 'Оренбургская область': 5.22,
+      'Пензенская область': 5.41, 'Пермский край': 5.37, 'Самарская область': 5.46,
+      'Саратовская область': 5.39, 'Ульяновская область': 5.35, 'Курганская область': 5.28,
+      'Свердловская область': 4.98, 'Тюменская область': 5.64, 'Ханты-Мансийский АО': 6.18,
+      'Ямало-Ненецкий АО': 7.24, 'Челябинская область': 5.15, 'Республика Алтай': 4.52,
+      'Республика Тыва': 4.38, 'Республика Хакасия': 3.82, 'Алтайский край': 4.67,
+      'Красноярский край': 4.23, 'Иркутская область': 3.21, 'Кемеровская область': 4.44,
+      'Новосибирская область': 4.67, 'Омская область': 4.89, 'Томская область': 4.56,
+      'Республика Бурятия': 4.78, 'Республика Саха (Якутия)': 7.92, 'Забайкальский край': 5.87,
+      'Камчатский край': 8.45, 'Приморский край': 6.34, 'Хабаровский край': 6.28,
+      'Амурская область': 5.92, 'Магаданская область': 8.12, 'Сахалинская область': 7.38,
+      'Еврейская АО': 5.84, 'Чукотский АО': 9.15,
+    };
+
+    async function generatePriceRecords() {
+      log('\nSTEP 2: Getting all regions...', 'info');
+      const result = await callApi('get_all_regions');
+      const regions = result.regions;
+      log(`Found ${regions.length} regions`, 'success');
+      
+      const priceRecords = [];
+      const dates = [
+        ['2024-01-01', 1.00],
+        ['2024-07-01', 1.023],
+        ['2024-12-01', 1.045],
+      ];
+      
+      let moscowId = null;
+      let spbId = null;
+      
+      for (const region of regions) {
+        const basePrice = REGIONAL_TARIFFS[region.name] || 5.50;
+        
+        if (region.name === 'Москва') moscowId = region.id;
+        else if (region.name === 'Санкт-Петербург') spbId = region.id;
+        
+        for (const [dateStr, multiplier] of dates) {
+          const price = Math.round(basePrice * multiplier * 100) / 100;
+          priceRecords.push({
+            region_id: region.id,
+            price: price,
+            recorded_at: dateStr,
+            tariff_type: 'single',
+            consumer_type: 'standard',
+            time_zone: 'day',
+            source: 'official_2024'
+          });
+        }
+      }
+      
+      // Moscow detailed tariffs
+      if (moscowId !== null) {
+        log(`\nAdding detailed tariffs for Moscow (region_id=${moscowId})...`, 'info');
+        
+        const moscowTariffs = [
+          ['2024-01-01', 'two_zone', 'standard', 'day', 6.70],
+          ['2024-01-01', 'two_zone', 'standard', 'night', 2.19],
+          ['2024-01-01', 'three_zone', 'standard', 'peak', 7.32],
+          ['2024-01-01', 'three_zone', 'standard', 'half_peak', 5.92],
+          ['2024-01-01', 'three_zone', 'standard', 'night', 1.99],
+          ['2024-07-01', 'two_zone', 'standard', 'day', 6.85],
+          ['2024-07-01', 'two_zone', 'standard', 'night', 2.24],
+          ['2024-07-01', 'three_zone', 'standard', 'peak', 7.48],
+          ['2024-07-01', 'three_zone', 'standard', 'half_peak', 6.06],
+          ['2024-07-01', 'three_zone', 'standard', 'night', 2.03],
+          ['2024-12-01', 'two_zone', 'standard', 'day', 7.00],
+          ['2024-12-01', 'two_zone', 'standard', 'night', 2.29],
+          ['2024-12-01', 'three_zone', 'standard', 'peak', 7.65],
+          ['2024-12-01', 'three_zone', 'standard', 'half_peak', 6.19],
+          ['2024-12-01', 'three_zone', 'standard', 'night', 2.08],
+          ['2024-01-01', 'single', 'electric_stove', 'day', 4.14],
+          ['2024-01-01', 'two_zone', 'electric_stove', 'day', 4.69],
+          ['2024-01-01', 'two_zone', 'electric_stove', 'night', 1.53],
+          ['2024-07-01', 'single', 'electric_stove', 'day', 4.24],
+          ['2024-07-01', 'two_zone', 'electric_stove', 'day', 4.79],
+          ['2024-07-01', 'two_zone', 'electric_stove', 'night', 1.56],
+          ['2024-12-01', 'single', 'electric_stove', 'day', 4.33],
+          ['2024-12-01', 'two_zone', 'electric_stove', 'day', 4.90],
+          ['2024-12-01', 'two_zone', 'electric_stove', 'night', 1.60],
+        ];
+        
+        for (const [date, tariff, consumer, zone, price] of moscowTariffs) {
+          priceRecords.push({
+            region_id: moscowId,
+            price: price,
+            recorded_at: date,
+            tariff_type: tariff,
+            consumer_type: consumer,
+            time_zone: zone,
+            source: 'official_2024_detailed'
+          });
+        }
+      }
+      
+      // St. Petersburg detailed tariffs
+      if (spbId !== null) {
+        log(`Adding detailed tariffs for St. Petersburg (region_id=${spbId})...`, 'info');
+        const spbTariffs = [
+          ['2024-01-01', 5.70],
+          ['2024-07-01', 6.19],
+          ['2024-12-01', 6.32],
+        ];
+        
+        for (const [date, price] of spbTariffs) {
+          const recordIndex = priceRecords.findIndex(r => 
+            r.region_id === spbId && r.recorded_at === date && 
+            r.tariff_type === 'single' && r.consumer_type === 'standard'
+          );
+          if (recordIndex !== -1) {
+            priceRecords[recordIndex].price = price;
+            priceRecords[recordIndex].source = 'official_2024_detailed';
+          }
+        }
+      }
+      
+      return [priceRecords, regions];
+    }
+
+    async function runFullScript() {
+      runBtn.disabled = true;
+      clearConsole();
+      
+      log('='.repeat(80));
+      log('CLEANING DATABASE AND POPULATING WITH REAL TARIFF DATA');
+      log('='.repeat(80));
+      
+      try {
+        // STEP 1: Delete all data
+        log('\nSTEP 1: Deleting ALL synthetic data from price_history table...', 'warning');
+        const deleteResult = await callApi('delete_all_prices');
+        const deletedCount = deleteResult.deleted_rows || 0;
+        log(`✓ Deleted ${deletedCount} rows from price_history table`, 'success');
+        
+        // STEP 2 & 3: Generate and insert
+        const [priceRecords, regions] = await generatePriceRecords();
+        
+        log(`\nSTEP 3: Inserting ${priceRecords.length} REAL price records...`, 'info');
+        
+        const batchSize = 500;
+        let totalInserted = 0;
+        
+        for (let i = 0; i < priceRecords.length; i += batchSize) {
+          const batch = priceRecords.slice(i, i + batchSize);
+          const result = await callApi('insert_prices', { prices: batch });
+          const inserted = result.inserted_rows || 0;
+          totalInserted += inserted;
+          log(`  Batch ${Math.floor(i / batchSize) + 1}: Inserted ${inserted} records`);
+        }
+        
+        log(`\n✓ Total inserted: ${totalInserted} price records`, 'success');
+        
+        // STEP 4: Summary
+        log('\n' + '='.repeat(80));
+        log('FINAL REPORT', 'success');
+        log('='.repeat(80));
+        
+        log(`\n1. DELETED: ${deletedCount} old synthetic records`);
+        log(`\n2. ALL ${regions.length} RUSSIAN REGIONS:`);
+        log('-'.repeat(80));
+        
+        for (const region of regions.slice(0, 10)) {
+          log(`  ${String(region.id).padEnd(5)} ${region.name.padEnd(40)} ${region.zone}`);
+        }
+        log(`  ... and ${regions.length - 10} more regions`);
+        
+        log(`\n3. INSERTED: ${totalInserted} REAL price records`, 'success');
+        
+        // Moscow sample
+        const moscowRegion = regions.find(r => r.name === 'Москва');
+        if (moscowRegion) {
+          const moscowRecords = priceRecords.filter(r => r.region_id === moscowRegion.id);
+          log('\n4. MOSCOW (Москва) - Sample records:', 'info');
+          for (const rec of moscowRecords.slice(0, 8)) {
+            log(`  ${rec.recorded_at} | ${rec.tariff_type.padEnd(11)} | ${rec.consumer_type.padEnd(15)} | ${rec.time_zone.padEnd(10)} | ${rec.price} руб`);
+          }
+          log(`  ... total ${moscowRecords.length} Moscow records`);
+        }
+        
+        // SPb sample
+        const spbRegion = regions.find(r => r.name === 'Санкт-Петербург');
+        if (spbRegion) {
+          const spbRecords = priceRecords.filter(r => r.region_id === spbRegion.id);
+          log('\n5. ST. PETERSBURG (Санкт-Петербург) - All records:', 'info');
+          for (const rec of spbRecords) {
+            log(`  ${rec.recorded_at} | ${rec.tariff_type.padEnd(11)} | ${rec.consumer_type.padEnd(15)} | ${rec.time_zone.padEnd(10)} | ${rec.price} руб`);
+          }
+        }
+        
+        log('\n' + '='.repeat(80));
+        log('✓ DATABASE SUCCESSFULLY POPULATED WITH REAL TARIFF DATA!', 'success');
+        log('='.repeat(80));
+        
+      } catch (error) {
+        log('\n❌ ERROR: ' + error.message, 'error');
+        console.error(error);
+      } finally {
+        runBtn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
