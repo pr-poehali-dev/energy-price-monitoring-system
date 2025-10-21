@@ -198,6 +198,7 @@ export default function OverviewTab({
           regionName={selectedRegion.name}
           currentPrice={selectedRegion.current_price}
           daysAhead={90}
+          historicalPeriodDays={parseInt(period)}
         />
       )}
     </div>

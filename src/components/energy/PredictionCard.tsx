@@ -14,18 +14,28 @@ interface PredictionCardProps {
   regionName: string;
   currentPrice: number;
   daysAhead?: number;
+  historicalPeriodDays?: number;
 }
 
 export default function PredictionCard({ 
   regionHistory, 
   regionName, 
   currentPrice,
-  daysAhead: initialDaysAhead = 90 
+  daysAhead: initialDaysAhead = 90,
+  historicalPeriodDays
 }: PredictionCardProps) {
   const { t, language } = useLanguage();
   const [daysAhead, setDaysAhead] = useState(initialDaysAhead);
   
-  if (regionHistory.length < 10) {
+  // Фильтруем историю по периоду, если указан
+  let filteredHistory = regionHistory;
+  if (historicalPeriodDays) {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - historicalPeriodDays);
+    filteredHistory = regionHistory.filter(point => new Date(point.recorded_at) >= cutoffDate);
+  }
+  
+  if (filteredHistory.length < 10) {
     return (
       <Card className="p-6">
         <div className="flex items-center gap-3 mb-4">
@@ -41,9 +51,9 @@ export default function PredictionCard({
     );
   }
 
-  const prediction = predictPrices(regionHistory, daysAhead);
+  const prediction = predictPrices(filteredHistory, daysAhead);
   
-  const sortedHistory = regionHistory
+  const sortedHistory = filteredHistory
     .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
   
   const allHistoricalDates = sortedHistory.map(p => p.recorded_at);
@@ -140,7 +150,14 @@ export default function PredictionCard({
             <p className="text-sm text-muted-foreground">{t('prediction.modelAccuracy')}</p>
           </div>
           <p className="text-lg font-semibold">{prediction.accuracy}%</p>
-          <p className="text-xs text-muted-foreground mt-1">{getAccuracyDescription(prediction.accuracy, t)}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {getAccuracyDescription(prediction.accuracy, t)}
+            {historicalPeriodDays && (
+              <span className="block mt-1">
+                {language === 'ru' ? `На основе ${historicalPeriodDays} дней` : `Based on ${historicalPeriodDays} days`}
+              </span>
+            )}
+          </p>
         </div>
 
         <div className="p-4 rounded-lg bg-muted/50">
