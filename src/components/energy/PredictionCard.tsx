@@ -82,7 +82,7 @@ export default function PredictionCard({
     return result;
   }, [filteredHistory, daysAhead, regionName]);
   
-  if (filteredHistory.length < 10) {
+  if (filteredHistory.length < 3) {
     return (
       <Card className="p-6">
         <div className="flex items-center gap-3 mb-4">
@@ -92,7 +92,7 @@ export default function PredictionCard({
         <div className="text-center py-8 text-muted-foreground">
           <Icon name="AlertCircle" className="mx-auto mb-3" size={48} />
           <p>{t('prediction.insufficientData')}</p>
-          <p className="text-sm mt-2">{t('prediction.minDataPoints')}</p>
+          <p className="text-sm mt-2">Требуется минимум 3 точки данных</p>
         </div>
       </Card>
     );
