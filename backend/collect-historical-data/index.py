@@ -12,21 +12,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
           context - object with request_id attribute
     Returns: HTTP response with import statistics for historical data
     '''
-    method: str = event.get('httpMethod', 'POST')
+    method: str = event.get('httpMethod', 'GET')
     
     if method == 'OPTIONS':
         return {
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Id',
                 'Access-Control-Max-Age': '86400'
             },
             'body': ''
         }
     
-    if method != 'POST':
+    if method not in ['GET', 'POST']:
         return {
             'statusCode': 405,
             'headers': {

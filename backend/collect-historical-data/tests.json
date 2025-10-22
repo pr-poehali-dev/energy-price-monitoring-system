@@ -1,8 +1,8 @@
 {
   "tests": [
     {
-      "name": "Import historical data",
-      "method": "POST",
+      "name": "Import historical data via GET",
+      "method": "GET",
       "path": "/",
       "expectedStatus": 200,
       "expectedBody": {
@@ -10,6 +10,16 @@
         "years_imported": "array",
         "total_records": "number",
         "imported_count": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Import historical data via POST",
+      "method": "POST",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
       },
       "bodyMatcher": "partial"
     }
