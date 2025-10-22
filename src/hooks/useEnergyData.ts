@@ -172,7 +172,8 @@ export function useEnergyData(language: 'ru' | 'en') {
 
   useEffect(() => {
     if (regions.length > 0) {
-      fetchAllRegionsHistory(730);
+      // Не загружаем историю для всех регионов автоматически - это вызывает rate limit
+      // История загружается только по запросу для конкретных регионов
     }
   }, [regions]);
 
