@@ -69,16 +69,11 @@ export default function PredictionCard({
   
   const prediction = useMemo(() => {
     const result = predictPrices(filteredHistory, daysAhead);
-    if (regionName === 'Москва') {
-      console.log('🔍 Москва prediction:', {
-        historyLength: filteredHistory.length,
-        daysAhead,
-        accuracy: result.accuracy,
-        trend: result.trend,
-        trendStrength: result.trendStrength,
-        samplePrices: filteredHistory.slice(0, 5).map(p => p.price)
-      });
-    }
+    console.log(`📈 ${regionName} prediction for ${daysAhead} days:`, {
+      historyLength: filteredHistory.length,
+      predictionsCount: result.predictions.length,
+      lastPrediction: result.predictions[result.predictions.length - 1]?.predictedPrice
+    });
     return result;
   }, [filteredHistory, daysAhead, regionName]);
   
