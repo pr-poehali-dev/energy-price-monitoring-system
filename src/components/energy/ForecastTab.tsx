@@ -38,8 +38,8 @@ export default function ForecastTab({
   const [hasLoadedHistory, setHasLoadedHistory] = useState(false);
 
   useEffect(() => {
-    if (!hasLoadedHistory && regions.length > 0 && allRegionsHistory.size === 0) {
-      console.log('🎯 ForecastTab: Starting to load all regions history');
+    if (!hasLoadedHistory && regions.length > 0) {
+      console.log(`🎯 ForecastTab: Starting to load all regions history. Current size: ${allRegionsHistory.size}, regions: ${regions.length}`);
       setIsLoadingAllHistory(true);
       setHasLoadedHistory(true);
       fetchAllRegionsHistory(90).finally(() => {
@@ -47,7 +47,7 @@ export default function ForecastTab({
         setIsLoadingAllHistory(false);
       });
     }
-  }, [hasLoadedHistory, regions.length, allRegionsHistory.size, fetchAllRegionsHistory]);
+  }, [hasLoadedHistory, regions.length, fetchAllRegionsHistory]);
 
   // Рассчитываем прогноз для всех регионов
   console.log(`📊 Calculating predictions: ${regions.length} regions, ${allRegionsHistory.size} have history`);
