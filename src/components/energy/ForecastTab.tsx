@@ -38,11 +38,11 @@ export default function ForecastTab({
     .filter(r => r.id !== selectedRegion.id)
     .map(region => {
       let history = allRegionsHistory.get(region.id);
-      if (!history || history.length < 10) {
+      if (!history || history.length < 3) {
         return null;
       }
       
-      // Агрегируем мультитарифы - берём среднее за день
+      // Агрегируем мультитарифы - берём среднее за год/день
       const groupedByDate = new Map<string, { prices: number[], point: typeof history[0] }>();
       history.forEach(point => {
         const dateKey = point.recorded_at.split('T')[0];
@@ -55,7 +55,11 @@ export default function ForecastTab({
       history = Array.from(groupedByDate.values()).map(({ prices, point }) => ({
         ...point,
         price: prices.reduce((sum, p) => sum + p, 0) / prices.length
-      }));
+      })).sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
+      
+      if (history.length < 3) {
+        return null;
+      }
       
       const prediction = predictPrices(history, daysAhead);
       if (prediction.predictions.length === 0) {

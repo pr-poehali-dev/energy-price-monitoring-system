@@ -17,7 +17,7 @@ export const predictPrices = (
   history: PriceHistoryPoint[],
   daysAhead: number = 90
 ): PredictionResult => {
-  if (history.length < 10) {
+  if (history.length < 3) {
     return {
       predictions: [],
       trend: 'stable',
