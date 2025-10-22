@@ -84,8 +84,6 @@ export default function Index() {
     );
   }
 
-  if (!selectedRegion) return null;
-
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -97,35 +95,47 @@ export default function Index() {
           <DashboardTabs />
 
           <TabsContent value="overview">
-            <OverviewTab 
-              regions={filteredRegions}
-              zoneStats={zoneStats}
-              regionHistory={regionHistory}
-              historyLoading={historyLoading}
-              getChartData={getChartData}
-              selectedRegion={selectedRegion}
-              onRegionChange={(regionId) => {
-                const region = regions.find(r => r.id === regionId);
-                if (region) setSelectedRegion(region);
-              }}
-              period={filters.period}
-              onPeriodChange={(period) => setFilters(prev => ({ ...prev, period }))}
-              tariffStructure={filters.tariffStructure}
-              consumerType={filters.consumerType}
-              displayMode={filters.displayMode}
-              onDisplayModeChange={(mode) => setFilters(prev => ({ ...prev, displayMode: mode }))}
-            />
+            {selectedRegion ? (
+              <OverviewTab 
+                regions={filteredRegions}
+                zoneStats={zoneStats}
+                regionHistory={regionHistory}
+                historyLoading={historyLoading}
+                getChartData={getChartData}
+                selectedRegion={selectedRegion}
+                onRegionChange={(regionId) => {
+                  const region = regions.find(r => r.id === regionId);
+                  if (region) setSelectedRegion(region);
+                }}
+                period={filters.period}
+                onPeriodChange={(period) => setFilters(prev => ({ ...prev, period }))}
+                tariffStructure={filters.tariffStructure}
+                consumerType={filters.consumerType}
+                displayMode={filters.displayMode}
+                onDisplayModeChange={(mode) => setFilters(prev => ({ ...prev, displayMode: mode }))}
+              />
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">{t('common.selectRegion')}</p>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="forecast">
-            <ForecastTab 
-              regions={filteredRegions}
-              selectedRegion={selectedRegion}
-              onSelectRegion={setSelectedRegion}
-              regionHistory={regionHistory}
-              historyLoading={historyLoading}
-              allRegionsHistory={allRegionsHistory}
-            />
+            {selectedRegion ? (
+              <ForecastTab 
+                regions={filteredRegions}
+                selectedRegion={selectedRegion}
+                onSelectRegion={setSelectedRegion}
+                regionHistory={regionHistory}
+                historyLoading={historyLoading}
+                allRegionsHistory={allRegionsHistory}
+              />
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">{t('common.selectRegion')}</p>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="map">
@@ -136,40 +146,52 @@ export default function Index() {
           </TabsContent>
 
           <TabsContent value="regions">
-            <RegionsTab 
-              regions={filteredRegions}
-              selectedRegion={selectedRegion}
-              onSelectRegion={setSelectedRegion}
-            />
+            {selectedRegion ? (
+              <RegionsTab 
+                regions={filteredRegions}
+                selectedRegion={selectedRegion}
+                onSelectRegion={setSelectedRegion}
+              />
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">{t('common.selectRegion')}</p>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="analytics">
-            <AnalyticsTab
-              regions={filteredRegions}
-              selectedRegions={selectedAnalyticsRegions}
-              onSelectedRegionsChange={setSelectedAnalyticsRegions}
-              multiRegionData={multiRegionData}
-              multiRegionLoading={multiRegionLoading}
-              period={filters.period}
-              onPeriodChange={(period) => setFilters(prev => ({ ...prev, period }))}
-              regionHistory={regionHistory}
-              historyLoading={historyLoading}
-              calculateTrend={(history) => {
-                if (history.length < 2) return t('trend.stable');
-                const firstPrice = history[0]?.avg_price || 0;
-                const lastPrice = history[history.length - 1]?.avg_price || 0;
-                const change = ((lastPrice - firstPrice) / firstPrice) * 100;
-                if (Math.abs(change) < 1) return t('trend.stable');
-                if (change > 10) return t('trend.risingSignificantly');
-                if (change > 5) return t('trend.risingNoticeably');
-                if (change > 0) return t('trend.risingSlightly');
-                if (change < -10) return t('trend.fallingSignificantly');
-                if (change < -5) return t('trend.fallingNoticeably');
-                return t('trend.fallingSlightly');
-              }}
-              getChartData={getChartData}
-              selectedRegion={selectedRegion}
-            />
+            {selectedRegion ? (
+              <AnalyticsTab
+                regions={filteredRegions}
+                selectedRegions={selectedAnalyticsRegions}
+                onSelectedRegionsChange={setSelectedAnalyticsRegions}
+                multiRegionData={multiRegionData}
+                multiRegionLoading={multiRegionLoading}
+                period={filters.period}
+                onPeriodChange={(period) => setFilters(prev => ({ ...prev, period }))}
+                regionHistory={regionHistory}
+                historyLoading={historyLoading}
+                calculateTrend={(history) => {
+                  if (history.length < 2) return t('trend.stable');
+                  const firstPrice = history[0]?.avg_price || 0;
+                  const lastPrice = history[history.length - 1]?.avg_price || 0;
+                  const change = ((lastPrice - firstPrice) / firstPrice) * 100;
+                  if (Math.abs(change) < 1) return t('trend.stable');
+                  if (change > 10) return t('trend.risingSignificantly');
+                  if (change > 5) return t('trend.risingNoticeably');
+                  if (change > 0) return t('trend.risingSlightly');
+                  if (change < -10) return t('trend.fallingSignificantly');
+                  if (change < -5) return t('trend.fallingNoticeably');
+                  return t('trend.fallingSlightly');
+                }}
+                getChartData={getChartData}
+                selectedRegion={selectedRegion}
+              />
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">{t('common.selectRegion')}</p>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="compare">
