@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "Import historical data",
+      "method": "POST",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "years_imported": "array",
+        "total_records": "number",
+        "imported_count": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

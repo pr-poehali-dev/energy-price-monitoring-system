@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Collect official data for current year",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "total_collected": "number",
+        "imported_count": "number",
+        "source_stats": "object"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Collect official data for specific year",
+      "method": "GET",
+      "path": "/?year=2024",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "year": 2024
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

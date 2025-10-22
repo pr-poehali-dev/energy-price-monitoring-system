@@ -57,14 +57,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             result = {'deleted_rows': deleted_count, 'message': f'Deleted {deleted_count} price records'}
         
         elif action == 'delete_generated_data':
-            # Удаляем только сгенерированные данные, оставляем реальные из ФАС
+            # Удаляем только сгенерированные данные, оставляем реальные из официальных источников
             cursor.execute("""
-                DELETE FROM price_history 
-                WHERE source IN ('estimate', 'MONTHLY_GENERATED', 'HISTORICAL_DATA', 'IMPORT_2024', 'test')
+                DELETE FROM t_p67469144_energy_price_monitor.price_history 
+                WHERE source IN ('estimate', 'MONTHLY_GENERATED', 'HISTORICAL_DATA', 'IMPORT_2024', 'test', 
+                                'https://rg.ru', 'https://www.ingos.ru', 'https://vladnews.ru', 'https://ktv-ray.ru')
             """)
             deleted_count = cursor.rowcount
             conn.commit()
-            result = {'deleted_rows': deleted_count, 'message': f'Deleted {deleted_count} generated records, kept FAS data'}
+            result = {'deleted_rows': deleted_count, 'message': f'Deleted {deleted_count} non-official records, kept official government data'}
         
         elif action == 'get_all_regions':
             # Получаем список всех регионов
