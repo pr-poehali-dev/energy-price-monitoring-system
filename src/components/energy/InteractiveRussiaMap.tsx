@@ -98,7 +98,6 @@ const regionCoordinates: Record<string, [number, number]> = {
 
 export default function InteractiveRussiaMap({ regions, onSelectRegion }: InteractiveRussiaMapProps) {
   const [selectedRegion, setSelectedRegion] = useState<Region | null>(null);
-  const mapRef = useRef<L.Map | null>(null);
 
   const getColorByPrice = (price: number) => {
     if (price < 4) return '#10b981';
@@ -160,7 +159,6 @@ export default function InteractiveRussiaMap({ regions, onSelectRegion }: Intera
             zoom={3}
             style={{ height: '100%', width: '100%' }}
             zoomControl={false}
-            ref={mapRef}
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
