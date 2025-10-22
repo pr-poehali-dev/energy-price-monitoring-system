@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useState } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, ZoomControl } from 'react-leaflet';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -165,7 +165,6 @@ export default function InteractiveRussiaMap({ regions, onSelectRegion }: Intera
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <ZoomControl position="topright" />
-
             {regions.map((region) => {
               const coords = regionCoordinates[region.name];
               if (!coords) return null;
