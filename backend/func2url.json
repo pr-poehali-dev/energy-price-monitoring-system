@@ -1,4 +1,6 @@
 {
+  "import-fas-data": "https://functions.poehali.dev/44fd9302-6350-4b24-bfc8-e9dbf41c4866",
+  "fas-tariff-scraper": "https://functions.poehali.dev/2796af61-1265-420d-91da-1eb1c261f30e",
   "load-historical-tariffs": "https://functions.poehali.dev/0ae194c2-ee04-49e4-a5a5-de1ce91372c2",
   "historical-tariff-parser": "https://functions.poehali.dev/754473b7-8c5f-49b8-9303-b7770aeb59dd",
   "stats": "https://functions.poehali.dev/b706b537-d317-4eec-9931-6097fd590569",
