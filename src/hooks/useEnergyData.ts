@@ -75,6 +75,7 @@ export function useEnergyData(language: 'ru' | 'en') {
   };
   
   const fetchAllRegionsHistory = async (days: number) => {
+    console.log(`🔄 Starting to fetch history for ${regions.length} regions, ${days} days`);
     try {
       const historyMap = new Map<number, PriceHistoryPoint[]>();
       
@@ -84,6 +85,7 @@ export function useEnergyData(language: 'ru' | 'en') {
       for (let i = 0; i < regions.length; i += batchSize) {
         batches.push(regions.slice(i, i + batchSize));
       }
+      console.log(`📦 Split into ${batches.length} batches`);
       
       for (const batch of batches) {
         const promises = batch.map(region =>

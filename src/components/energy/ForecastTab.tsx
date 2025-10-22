@@ -35,20 +35,32 @@ export default function ForecastTab({
   const [selectedTariff, setSelectedTariff] = useState<'all' | 'single' | 'two_zone' | 'three_zone'>('all');
   const [selectedTimeZone, setSelectedTimeZone] = useState<'all' | 'day' | 'night' | 'peak' | 'half_peak'>('all');
   const [isLoadingAllHistory, setIsLoadingAllHistory] = useState(false);
+  const [hasLoadedHistory, setHasLoadedHistory] = useState(false);
 
   useEffect(() => {
-    if (allRegionsHistory.size === 0 && regions.length > 0 && !isLoadingAllHistory) {
+    if (!hasLoadedHistory && regions.length > 0 && allRegionsHistory.size === 0) {
+      console.log('🎯 ForecastTab: Starting to load all regions history');
       setIsLoadingAllHistory(true);
-      fetchAllRegionsHistory(90).finally(() => setIsLoadingAllHistory(false));
+      setHasLoadedHistory(true);
+      fetchAllRegionsHistory(90).finally(() => {
+        console.log('✅ ForecastTab: Finished loading history');
+        setIsLoadingAllHistory(false);
+      });
     }
-  }, [allRegionsHistory.size, regions.length, fetchAllRegionsHistory, isLoadingAllHistory]);
+  }, [hasLoadedHistory, regions.length, allRegionsHistory.size, fetchAllRegionsHistory]);
 
   // Рассчитываем прогноз для всех регионов
+  console.log(`📊 Calculating predictions: ${regions.length} regions, ${allRegionsHistory.size} have history`);
   const regionPredictions = regions
     .filter(r => r.id !== selectedRegion.id)
     .map(region => {
       let history = allRegionsHistory.get(region.id);
       if (!history || history.length < 3) {
+        if (!history) {
+          console.log(`⚠️ No history for region ${region.name}`);
+        } else if (history.length < 3) {
+          console.log(`⚠️ Insufficient history for ${region.name}: ${history.length} points`);
+        }
         return null;
       }
       
