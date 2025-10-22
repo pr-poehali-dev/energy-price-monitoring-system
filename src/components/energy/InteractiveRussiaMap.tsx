@@ -165,43 +165,44 @@ export default function InteractiveRussiaMap({ regions, onSelectRegion }: Intera
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <ZoomControl position="topright" />
-            {regions.map((region) => {
-              const coords = regionCoordinates[region.name];
-              if (!coords) return null;
+            {regions
+              .filter(region => regionCoordinates[region.name])
+              .map((region) => {
+                const coords = regionCoordinates[region.name];
 
-              return (
-                <CircleMarker
-                  key={region.id}
-                  center={coords}
-                  radius={getRadiusByPrice(region.current_price)}
-                  pathOptions={{
-                    fillColor: getColorByPrice(region.current_price),
-                    fillOpacity: 0.7,
-                    color: '#ffffff',
-                    weight: 2,
-                  }}
-                  eventHandlers={{
-                    click: () => handleRegionClick(region),
-                  }}
-                >
-                  <Popup>
-                    <div className="space-y-2 min-w-[200px]">
-                      <div>
-                        <p className="font-semibold text-sm">{region.name}</p>
-                        <p className="text-xs text-muted-foreground">{region.zone}</p>
+                return (
+                  <CircleMarker
+                    key={region.id}
+                    center={coords}
+                    radius={getRadiusByPrice(region.current_price)}
+                    pathOptions={{
+                      fillColor: getColorByPrice(region.current_price),
+                      fillOpacity: 0.7,
+                      color: '#ffffff',
+                      weight: 2,
+                    }}
+                    eventHandlers={{
+                      click: () => handleRegionClick(region),
+                    }}
+                  >
+                    <Popup>
+                      <div className="space-y-2 min-w-[200px]">
+                        <div>
+                          <p className="font-semibold text-sm">{region.name}</p>
+                          <p className="text-xs text-muted-foreground">{region.zone}</p>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-2xl font-bold">{region.current_price.toFixed(2)}</span>
+                          <span className="text-xs text-muted-foreground">₽/кВт⋅ч</span>
+                        </div>
+                        <Badge variant={region.change > 0 ? 'destructive' : 'secondary'} className="text-xs">
+                          {region.change > 0 ? '↑' : '↓'} {Math.abs(region.change).toFixed(2)}%
+                        </Badge>
                       </div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-bold">{region.current_price.toFixed(2)}</span>
-                        <span className="text-xs text-muted-foreground">₽/кВт⋅ч</span>
-                      </div>
-                      <Badge variant={region.change > 0 ? 'destructive' : 'secondary'} className="text-xs">
-                        {region.change > 0 ? '↑' : '↓'} {Math.abs(region.change).toFixed(2)}%
-                      </Badge>
-                    </div>
-                  </Popup>
-                </CircleMarker>
-              );
-            })}
+                    </Popup>
+                  </CircleMarker>
+                );
+              })}
           </MapContainer>
         </div>
 
