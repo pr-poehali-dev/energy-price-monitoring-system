@@ -43,19 +43,24 @@ export const predictPrices = (
   const lastDate = new Date(sortedHistory[sortedHistory.length - 1].recorded_at);
   const predictions: PredictionPoint[] = [];
   
+  // Генерируем минимум 8 точек прогноза для любого периода
   const avgDaysBetweenPoints = calculateAverageDaysBetween(sortedHistory);
+  const minPoints = 8;
+  const pointsCount = Math.max(minPoints, Math.ceil(daysAhead / avgDaysBetweenPoints));
+  const daysBetweenPredictions = daysAhead / pointsCount;
   
-  for (let i = 1; i <= Math.ceil(daysAhead / avgDaysBetweenPoints); i++) {
-    const futureIndex = sortedHistory.length + i;
+  for (let i = 1; i <= pointsCount; i++) {
+    // Рассчитываем индекс на основе реального временного масштаба
+    const daysFromLastPoint = i * daysBetweenPredictions;
+    const futureIndex = sortedHistory.length + (daysFromLastPoint / avgDaysBetweenPoints);
     const predictedPrice = slope * futureIndex + intercept;
     
     const futureDate = new Date(lastDate);
-    futureDate.setDate(futureDate.getDate() + (i * avgDaysBetweenPoints));
+    futureDate.setDate(futureDate.getDate() + daysFromLastPoint);
     
-    const daysFromNow = i * avgDaysBetweenPoints;
     let confidence: 'high' | 'medium' | 'low';
-    if (daysFromNow <= 30) confidence = 'high';
-    else if (daysFromNow <= 60) confidence = 'medium';
+    if (daysFromLastPoint <= 30) confidence = 'high';
+    else if (daysFromLastPoint <= 60) confidence = 'medium';
     else confidence = 'low';
     
     predictions.push({
