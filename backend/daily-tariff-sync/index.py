@@ -25,28 +25,38 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': ''
         }
     
-    sync_url = 'https://functions.poehali.dev/1d38596d-371d-453b-91cd-80200e4d0a2b'
+    current_year = datetime.now().year
+    import_url = f'https://functions.poehali.dev/44fd9302-6350-4b24-bfc8-e9dbf41c4866?year={current_year}'
     
-    req = urllib.request.Request(
-        sync_url,
-        data=b'',
-        headers={'Content-Type': 'application/json'},
-        method='POST'
-    )
+    try:
+        req = urllib.request.Request(
+            import_url,
+            headers={'User-Agent': 'DailyTariffSync/1.0'}
+        )
+        
+        with urllib.request.urlopen(req, timeout=30) as response:
+            sync_data = json.loads(response.read().decode('utf-8'))
+        
+        result = {
+            'success': sync_data.get('success', False),
+            'year': current_year,
+            'imported': sync_data.get('imported_count', 0),
+            'skipped': sync_data.get('skipped_count', 0),
+            'total_tariffs': sync_data.get('total_tariffs', 0),
+            'errors': sync_data.get('errors', []),
+            'timestamp': datetime.now().isoformat(),
+            'trigger': 'daily_cron',
+            'message': f'Daily sync completed: {sync_data.get("imported_count", 0)} new tariffs imported'
+        }
     
-    with urllib.request.urlopen(req) as response:
-        sync_data = json.loads(response.read().decode('utf-8'))
-    
-    result = {
-        'success': sync_data.get('success', False),
-        'parsed': sync_data.get('parsed', 0),
-        'updated': sync_data.get('updated', 0),
-        'skipped': sync_data.get('skipped', 0),
-        'errors': sync_data.get('errors', []),
-        'timestamp': datetime.now().isoformat(),
-        'trigger': 'cron',
-        'message': f'Daily sync completed: {sync_data.get("updated", 0)} tariffs updated'
-    }
+    except Exception as e:
+        result = {
+            'success': False,
+            'error': str(e),
+            'timestamp': datetime.now().isoformat(),
+            'trigger': 'daily_cron',
+            'message': f'Daily sync failed: {str(e)}'
+        }
     
     return {
         'statusCode': 200,
