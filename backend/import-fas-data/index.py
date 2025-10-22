@@ -74,14 +74,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
         for tariff in tariffs:
-            region_name = tariff.get('region_name')
+            region_name = tariff.get('region_name', '').replace("'", "''")
             tariff_value = tariff.get('tariff_rub_per_kwh')
             valid_from = tariff.get('valid_from', f'{year}-01-01')
-            source = 'FAS_SCRAPER_' + year
+            source = f'FAS_SCRAPER_{year}'
             
-            cursor.execute('''
-                SELECT id FROM regions WHERE name = %s LIMIT 1
-            ''', (region_name,))
+            cursor.execute(f"""
+                SELECT id FROM regions WHERE name = '{region_name}' LIMIT 1
+            """)
             
             region = cursor.fetchone()
             
@@ -92,12 +92,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             region_id = region['id']
             
-            cursor.execute('''
+            cursor.execute(f"""
                 INSERT INTO price_history 
                 (region_id, price, recorded_at, source, tariff_type, time_zone, consumer_type)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                VALUES ({region_id}, {tariff_value}, '{valid_from}', '{source}', 'single', 'all', 'residential')
                 ON CONFLICT DO NOTHING
-            ''', (region_id, tariff_value, valid_from, source, 'single', 'all', 'residential'))
+            """)
             
             if cursor.rowcount > 0:
                 imported_count += 1
