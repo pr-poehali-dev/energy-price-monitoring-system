@@ -217,6 +217,12 @@ export default function Index() {
             />
           </TabsContent>
         </Tabs>
+
+        <footer className="text-center py-8 border-t mt-12">
+          <p className="text-sm text-muted-foreground">
+            © 2024 Ivan Elkin. All rights reserved.
+          </p>
+        </footer>
       </div>
     </div>
   );
