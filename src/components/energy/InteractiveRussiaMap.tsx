@@ -1,13 +1,104 @@
+import { useEffect, useRef } from 'react';
+import L from 'leaflet';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import type { Region } from './types';
+import 'leaflet/dist/leaflet.css';
 
 interface InteractiveRussiaMapProps {
   regions: Region[];
   onSelectRegion: (region: Region) => void;
 }
 
+const regionCoordinates: Record<string, [number, number]> = {
+  'Москва': [55.7558, 37.6173],
+  'Санкт-Петербург': [59.9343, 30.3351],
+  'Московская область': [55.5, 37.5],
+  'Ленинградская область': [60.0, 31.0],
+  'Калининградская область': [54.7104, 20.4522],
+  'Мурманская область': [68.9585, 33.0827],
+  'Архангельская область': [64.5401, 40.5433],
+  'Вологодская область': [59.2239, 39.8840],
+  'Новгородская область': [58.5220, 31.2675],
+  'Псковская область': [57.8136, 28.3496],
+  'Республика Карелия': [61.7849, 34.3469],
+  'Республика Коми': [64.0, 54.0],
+  'Ненецкий автономный округ': [67.6385, 53.0065],
+  'Тверская область': [57.0, 35.0],
+  'Ярославская область': [57.6261, 39.8845],
+  'Костромская область': [58.0, 42.0],
+  'Ивановская область': [57.0, 41.0],
+  'Владимирская область': [56.1366, 40.3966],
+  'Рязанская область': [54.6269, 39.6916],
+  'Тульская область': [54.1961, 37.6182],
+  'Калужская область': [54.5293, 36.2754],
+  'Смоленская область': [54.7818, 32.0401],
+  'Брянская область': [53.2521, 34.3717],
+  'Орловская область': [52.9651, 36.0785],
+  'Курская область': [51.7373, 36.1873],
+  'Белгородская область': [50.5953, 36.5861],
+  'Воронежская область': [51.6720, 39.2100],
+  'Липецкая область': [52.6103, 39.5698],
+  'Тамбовская область': [52.7213, 41.4522],
+  'Пензенская область': [53.2007, 45.0046],
+  'Ульяновская область': [54.3143, 48.4033],
+  'Самарская область': [53.2028, 50.1408],
+  'Саратовская область': [51.5339, 46.0344],
+  'Волгоградская область': [48.7194, 44.5018],
+  'Астраханская область': [46.3497, 48.0408],
+  'Республика Татарстан': [55.7887, 49.1221],
+  'Удмуртская Республика': [57.0, 53.0],
+  'Республика Башкортостан': [54.7388, 55.9721],
+  'Оренбургская область': [51.7727, 55.0988],
+  'Кировская область': [58.6035, 49.6679],
+  'Нижегородская область': [56.3269, 44.0059],
+  'Республика Марий Эл': [56.6341, 47.8906],
+  'Чувашская Республика': [56.1439, 47.2489],
+  'Республика Мордовия': [54.1838, 45.1749],
+  'Пермский край': [58.0105, 56.2502],
+  'Свердловская область': [56.8519, 60.6122],
+  'Челябинская область': [55.1644, 61.4368],
+  'Курганская область': [55.4500, 65.3333],
+  'Тюменская область': [57.1522, 65.5272],
+  'Ханты-Мансийский автономный округ': [61.0042, 69.0019],
+  'Ямало-Ненецкий автономный округ': [66.5333, 66.6167],
+  'Республика Алтай': [51.9581, 85.9603],
+  'Алтайский край': [53.3481, 83.7799],
+  'Кемеровская область': [54.5293, 86.0878],
+  'Новосибирская область': [55.0084, 82.9357],
+  'Омская область': [54.9885, 73.3242],
+  'Томская область': [56.4977, 84.9744],
+  'Красноярский край': [56.0, 93.0],
+  'Иркутская область': [52.2869, 104.3050],
+  'Республика Бурятия': [51.8272, 107.6063],
+  'Республика Тыва': [51.7191, 94.4529],
+  'Республика Хакасия': [53.7157, 91.4292],
+  'Забайкальский край': [52.0, 116.0],
+  'Республика Саха (Якутия)': [62.0, 129.7],
+  'Амурская область': [52.0, 127.5],
+  'Хабаровский край': [48.4827, 135.0838],
+  'Приморский край': [43.1332, 131.9113],
+  'Сахалинская область': [46.9589, 142.7386],
+  'Еврейская автономная область': [48.0, 132.0],
+  'Магаданская область': [59.5636, 150.8027],
+  'Камчатский край': [53.0167, 158.65],
+  'Чукотский автономный округ': [66.0, 171.0],
+  'Ростовская область': [47.2357, 39.7015],
+  'Краснодарский край': [45.0355, 38.9753],
+  'Ставропольский край': [45.0428, 41.9692],
+  'Республика Адыгея': [44.6098, 40.1006],
+  'Республика Калмыкия': [46.3078, 44.2506],
+  'Карачаево-Черкесская Республика': [43.7668, 41.9270],
+  'Кабардино-Балкарская Республика': [43.4981, 43.6189],
+  'Республика Северная Осетия': [43.0181, 44.6820],
+  'Республика Ингушетия': [43.1653, 45.0000],
+  'Чеченская Республика': [43.4058, 45.6986],
+  'Республика Дагестан': [42.9849, 47.5047],
+};
+
 export default function InteractiveRussiaMap({ regions, onSelectRegion }: InteractiveRussiaMapProps) {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+
   const getColorByPrice = (price: number) => {
     if (price < 4) return '#10b981';
     if (price < 4.5) return '#84cc16';
@@ -16,21 +107,99 @@ export default function InteractiveRussiaMap({ regions, onSelectRegion }: Intera
     return '#ef4444';
   };
 
+  const getRadiusByPrice = (price: number) => {
+    const prices = regions.map(r => r.current_price);
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    const normalized = (price - minPrice) / (maxPrice - minPrice);
+    return 8 + normalized * 20;
+  };
+
+  useEffect(() => {
+    if (!mapRef.current || mapInstanceRef.current) return;
+
+    const map = L.map(mapRef.current, {
+      center: [64.0, 100.0],
+      zoom: 3,
+      zoomControl: true,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 18,
+    }).addTo(map);
+
+    mapInstanceRef.current = map;
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+
+    const map = mapInstanceRef.current;
+    
+    map.eachLayer((layer) => {
+      if (layer instanceof L.CircleMarker) {
+        map.removeLayer(layer);
+      }
+    });
+
+    regions.forEach((region) => {
+      const coords = regionCoordinates[region.name];
+      if (!coords) return;
+
+      const color = getColorByPrice(region.current_price);
+      const radius = getRadiusByPrice(region.current_price);
+
+      const circle = L.circleMarker([coords[0], coords[1]], {
+        radius: radius,
+        fillColor: color,
+        fillOpacity: 0.7,
+        color: '#ffffff',
+        weight: 2,
+      }).addTo(map);
+
+      const popupContent = `
+        <div style="min-width: 180px; font-family: system-ui;">
+          <div style="margin-bottom: 8px;">
+            <p style="font-weight: 600; font-size: 14px; margin: 0;">${region.name}</p>
+            <p style="font-size: 12px; color: #666; margin: 4px 0 0 0;">${region.zone}</p>
+          </div>
+          <div style="display: flex; align-items: baseline; gap: 4px; margin: 8px 0;">
+            <span style="font-size: 24px; font-weight: 700; color: ${color};">${region.current_price.toFixed(2)}</span>
+            <span style="font-size: 12px; color: #666;">₽/кВт⋅ч</span>
+          </div>
+          <div style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; background: ${region.change > 0 ? '#fee' : '#efe'}; color: ${region.change > 0 ? '#c00' : '#060'};">
+            ${region.change > 0 ? '↑' : '↓'} ${Math.abs(region.change).toFixed(2)}%
+          </div>
+        </div>
+      `;
+
+      circle.bindPopup(popupContent);
+      
+      circle.on('click', () => {
+        onSelectRegion(region);
+      });
+    });
+  }, [regions, onSelectRegion]);
+
   const minPrice = Math.min(...regions.map(r => r.current_price));
   const maxPrice = Math.max(...regions.map(r => r.current_price));
-
-  const sortedByPrice = [...regions].sort((a, b) => a.current_price - b.current_price);
-  const topCheap = sortedByPrice.slice(0, 5);
-  const topExpensive = sortedByPrice.slice(-5).reverse();
 
   return (
     <Card className="p-6">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-semibold">Карта регионов России</h3>
+            <h3 className="text-xl font-semibold">Интерактивная карта России</h3>
             <p className="text-sm text-muted-foreground mt-1">
-              Распределение цен на электроэнергию по регионам
+              Тепловая карта цен • Масштабируйте и кликайте по регионам
             </p>
           </div>
         </div>
@@ -54,79 +223,13 @@ export default function InteractiveRussiaMap({ regions, onSelectRegion }: Intera
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h4 className="text-sm font-semibold mb-3 text-green-600">🏆 Самые низкие тарифы</h4>
-            <div className="space-y-2">
-              {topCheap.map((region, idx) => (
-                <div
-                  key={region.id}
-                  onClick={() => onSelectRegion(region)}
-                  className="p-3 rounded-lg border cursor-pointer hover:shadow-md transition-all"
-                  style={{
-                    backgroundColor: `${getColorByPrice(region.current_price)}15`,
-                    borderColor: getColorByPrice(region.current_price),
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-muted-foreground">#{idx + 1}</span>
-                      <div>
-                        <p className="font-medium text-sm">{region.name}</p>
-                        <p className="text-xs text-muted-foreground">{region.zone}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold" style={{ color: getColorByPrice(region.current_price) }}>
-                        {region.current_price.toFixed(2)} ₽
-                      </p>
-                      <Badge variant={region.change > 0 ? 'destructive' : 'secondary'} className="text-xs">
-                        {region.change > 0 ? '↑' : '↓'} {Math.abs(region.change).toFixed(1)}%
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div 
+          ref={mapRef} 
+          className="rounded-lg overflow-hidden border" 
+          style={{ height: '600px', width: '100%' }}
+        />
 
-          <div>
-            <h4 className="text-sm font-semibold mb-3 text-red-600">📊 Самые высокие тарифы</h4>
-            <div className="space-y-2">
-              {topExpensive.map((region, idx) => (
-                <div
-                  key={region.id}
-                  onClick={() => onSelectRegion(region)}
-                  className="p-3 rounded-lg border cursor-pointer hover:shadow-md transition-all"
-                  style={{
-                    backgroundColor: `${getColorByPrice(region.current_price)}15`,
-                    borderColor: getColorByPrice(region.current_price),
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-muted-foreground">#{idx + 1}</span>
-                      <div>
-                        <p className="font-medium text-sm">{region.name}</p>
-                        <p className="text-xs text-muted-foreground">{region.zone}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold" style={{ color: getColorByPrice(region.current_price) }}>
-                        {region.current_price.toFixed(2)} ₽
-                      </p>
-                      <Badge variant={region.change > 0 ? 'destructive' : 'secondary'} className="text-xs">
-                        {region.change > 0 ? '↑' : '↓'} {Math.abs(region.change).toFixed(1)}%
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs mt-6 pt-4 border-t">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-[#10b981]"></div>
             <span className="text-muted-foreground">{'< 4.0 ₽'}</span>
@@ -146,7 +249,7 @@ export default function InteractiveRussiaMap({ regions, onSelectRegion }: Intera
         </div>
 
         <div className="text-xs text-muted-foreground text-center pt-2 border-t">
-          💡 Кликните по региону для просмотра детальной информации
+          💡 Используйте колесо мыши для масштабирования • Кликните по кругу для деталей
         </div>
       </div>
     </Card>
