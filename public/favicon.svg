@@ -1,25 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-  <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  
-  <!-- Background -->
-  <rect width="256" height="256" rx="48" fill="url(#bg)"/>
-  
   <!-- Lightning bolt -->
-  <path d="M 140 40 L 90 120 L 120 120 L 100 180 L 160 100 L 130 100 L 160 40 Z" 
-        fill="#fbbf24" 
-        stroke="#f59e0b" 
-        stroke-width="3"/>
-  
-  <!-- Ruble symbol -->
-  <text x="128" y="235" 
-        font-family="Arial, sans-serif" 
-        font-size="80" 
-        font-weight="bold" 
-        fill="#ffffff" 
-        text-anchor="middle">₽</text>
+  <path d="M 140 40 L 80 130 L 120 130 L 90 220 L 180 120 L 140 120 L 180 40 Z" 
+        fill="#FFD700"/>
 </svg>
