@@ -193,6 +193,7 @@ export function useEnergyData(language: 'ru' | 'en') {
     allRegionsHistory,
     fetchRegionHistory,
     refetchData,
-    fetchMultiRegionHistory
+    fetchMultiRegionHistory,
+    fetchAllRegionsHistory
   };
 }

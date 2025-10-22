@@ -36,7 +36,8 @@ export default function Index() {
     allRegionsHistory,
     fetchRegionHistory,
     fetchMultiRegionHistory,
-    refetchData
+    refetchData,
+    fetchAllRegionsHistory
   } = useEnergyData(language as 'ru' | 'en');
 
   const {
@@ -130,6 +131,7 @@ export default function Index() {
                 regionHistory={regionHistory}
                 historyLoading={historyLoading}
                 allRegionsHistory={allRegionsHistory}
+                fetchAllRegionsHistory={fetchAllRegionsHistory}
               />
             ) : (
               <div className="text-center py-12">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ interface ForecastTabProps {
   regionHistory: PriceHistoryPoint[];
   historyLoading: boolean;
   allRegionsHistory: Map<number, PriceHistoryPoint[]>;
+  fetchAllRegionsHistory: (days: number) => Promise<void>;
 }
 
 export default function ForecastTab({ 
@@ -25,13 +26,22 @@ export default function ForecastTab({
   onSelectRegion,
   regionHistory,
   historyLoading,
-  allRegionsHistory
+  allRegionsHistory,
+  fetchAllRegionsHistory
 }: ForecastTabProps) {
   const { translateRegionName } = useTranslateNames();
   const { t } = useLanguage();
   const [daysAhead] = useState(90);
   const [selectedTariff, setSelectedTariff] = useState<'all' | 'single' | 'two_zone' | 'three_zone'>('all');
   const [selectedTimeZone, setSelectedTimeZone] = useState<'all' | 'day' | 'night' | 'peak' | 'half_peak'>('all');
+  const [isLoadingAllHistory, setIsLoadingAllHistory] = useState(false);
+
+  useEffect(() => {
+    if (allRegionsHistory.size === 0 && regions.length > 0 && !isLoadingAllHistory) {
+      setIsLoadingAllHistory(true);
+      fetchAllRegionsHistory(90).finally(() => setIsLoadingAllHistory(false));
+    }
+  }, [allRegionsHistory.size, regions.length, fetchAllRegionsHistory, isLoadingAllHistory]);
 
   // Рассчитываем прогноз для всех регионов
   const regionPredictions = regions
@@ -204,23 +214,34 @@ export default function ForecastTab({
                 </div>
               </div>
               <div className="space-y-3">
-                {topRisingPredictions.map((item, idx) => (
-                  <div
-                    key={item.region.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-destructive/10 hover:bg-destructive/20 transition-colors cursor-pointer"
-                    onClick={() => onSelectRegion(item.region)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-destructive/20 flex items-center justify-center font-bold text-sm">
-                        {idx + 1}
+                {isLoadingAllHistory ? (
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <Icon name="Loader2" className="animate-spin text-primary mb-3" size={32} />
+                    <p className="text-sm text-muted-foreground">{t('forecast.loadingHistory')}</p>
+                  </div>
+                ) : topRisingPredictions.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Icon name="Info" className="mx-auto mb-3 text-muted-foreground" size={32} />
+                    <p className="text-sm text-muted-foreground">{t('forecast.noRisingRegions')}</p>
+                  </div>
+                ) : (
+                  topRisingPredictions.map((item, idx) => (
+                    <div
+                      key={item.region.id}
+                      className="flex items-center justify-between p-3 rounded-lg bg-destructive/10 hover:bg-destructive/20 transition-colors cursor-pointer"
+                      onClick={() => onSelectRegion(item.region)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-destructive/20 flex items-center justify-center font-bold text-sm">
+                          {idx + 1}
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">{translateRegionName(item.region.name)}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Текущая: {item.currentPrice.toFixed(2)} ₽
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-sm">{translateRegionName(item.region.name)}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Текущая: {item.currentPrice.toFixed(2)} ₽
-                        </p>
-                      </div>
-                    </div>
                     <div className="text-right">
                       <Badge variant="destructive" className="text-xs">
                         <Icon name="TrendingUp" size={12} className="mr-1" />
@@ -243,10 +264,15 @@ export default function ForecastTab({
                 </div>
               </div>
               <div className="space-y-3">
-                {topFallingPredictions.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Icon name="TrendingUp" className="mx-auto mb-2" size={32} />
-                    <p className="text-sm">Все регионы показывают рост цен</p>
+                {isLoadingAllHistory ? (
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <Icon name="Loader2" className="animate-spin text-primary mb-3" size={32} />
+                    <p className="text-sm text-muted-foreground">{t('forecast.loadingHistory')}</p>
+                  </div>
+                ) : topFallingPredictions.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Icon name="Info" className="mx-auto mb-3 text-muted-foreground" size={32} />
+                    <p className="text-sm text-muted-foreground">{t('forecast.noFallingRegions')}</p>
                   </div>
                 ) : (
                   topFallingPredictions.map((item, idx) => (

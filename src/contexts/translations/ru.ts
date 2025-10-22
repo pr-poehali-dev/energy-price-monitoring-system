@@ -235,10 +235,13 @@ export const ru = {
   'forecast.selectRegion': 'Выберите регион для прогноза',
   'forecast.basedOnHistory': 'Прогнозирование на основе исторических данных',
   'forecast.loading': 'Загрузка данных прогноза...',
+  'forecast.loadingHistory': 'Загружаем историю цен всех регионов...',
   'forecast.selectForForecast': 'Выбрать регион',
   'forecast.tariffType': 'Тип тарифа',
   'forecast.growthForecast': 'Прогноз роста цен',
   'forecast.likelyIncrease': 'Регионы с вероятным повышением',
+  'forecast.noRisingRegions': 'Нет регионов с прогнозом роста цен',
+  'forecast.noFallingRegions': 'Нет регионов с прогнозом снижения цен',
   
   'notFound.oops': 'Упс! Страница не найдена',
   'notFound.backHome': 'Вернуться на главную',

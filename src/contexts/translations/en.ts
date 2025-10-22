@@ -235,10 +235,13 @@ export const en = {
   'forecast.selectRegion': 'Select region for forecast',
   'forecast.basedOnHistory': 'Forecasting based on historical data',
   'forecast.loading': 'Loading forecast data...',
+  'forecast.loadingHistory': 'Loading price history for all regions...',
   'forecast.selectForForecast': 'Select Region',
   'forecast.tariffType': 'Tariff Type',
   'forecast.growthForecast': 'Price Growth Forecast',
   'forecast.likelyIncrease': 'Regions with likely increase',
+  'forecast.noRisingRegions': 'No regions with price growth forecast',
+  'forecast.noFallingRegions': 'No regions with price decline forecast',
   
   'notFound.oops': 'Oops! Page not found',
   'notFound.backHome': 'Back to home',
