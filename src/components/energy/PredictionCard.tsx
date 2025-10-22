@@ -41,12 +41,21 @@ export default function PredictionCard({
   
   // Фильтруем по типу тарифа
   if (tariffType !== 'all') {
-    filteredHistory = filteredHistory.filter(point => point.tariff_type === tariffType);
-  }
-  
-  // Фильтруем по временной зоне
-  if (timeZone !== 'all') {
-    filteredHistory = filteredHistory.filter(point => point.time_zone === timeZone);
+    if (tariffType === 'single') {
+      filteredHistory = filteredHistory.filter(point => point.tariff_type === 'single' || !point.tariff_type);
+    } else if (tariffType === 'two_zone') {
+      if (timeZone === 'all') {
+        filteredHistory = filteredHistory.filter(point => point.tariff_type === 'day' || point.tariff_type === 'night');
+      } else {
+        filteredHistory = filteredHistory.filter(point => point.tariff_type === timeZone);
+      }
+    } else if (tariffType === 'three_zone') {
+      if (timeZone === 'all') {
+        filteredHistory = filteredHistory.filter(point => point.tariff_type === 'peak' || point.tariff_type === 'half_peak' || point.tariff_type === 'night');
+      } else {
+        filteredHistory = filteredHistory.filter(point => point.tariff_type === timeZone);
+      }
+    }
   }
   
   // Если выбраны все тарифы, агрегируем по датам (берём среднее)

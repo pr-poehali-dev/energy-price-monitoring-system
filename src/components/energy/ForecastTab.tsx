@@ -64,7 +64,30 @@ export default function ForecastTab({
         return null;
       }
       
-      // Агрегируем мультитарифы - берём среднее за год/день
+      // Фильтруем по выбранному тарифу
+      if (selectedTariff !== 'all') {
+        if (selectedTariff === 'single') {
+          history = history.filter(p => p.tariff_type === 'single' || !p.tariff_type);
+        } else if (selectedTariff === 'two_zone') {
+          if (selectedTimeZone === 'all') {
+            history = history.filter(p => p.tariff_type === 'day' || p.tariff_type === 'night');
+          } else {
+            history = history.filter(p => p.tariff_type === selectedTimeZone);
+          }
+        } else if (selectedTariff === 'three_zone') {
+          if (selectedTimeZone === 'all') {
+            history = history.filter(p => p.tariff_type === 'peak' || p.tariff_type === 'half_peak' || p.tariff_type === 'night');
+          } else {
+            history = history.filter(p => p.tariff_type === selectedTimeZone);
+          }
+        }
+      }
+      
+      if (history.length < 3) {
+        return null;
+      }
+      
+      // Агрегируем данные по датам
       const groupedByDate = new Map<string, { prices: number[], point: typeof history[0] }>();
       history.forEach(point => {
         const dateKey = point.recorded_at.split('T')[0];
