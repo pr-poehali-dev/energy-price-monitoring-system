@@ -68,14 +68,8 @@ export default function PredictionCard({
   }
   
   const prediction = useMemo(() => {
-    const result = predictPrices(filteredHistory, daysAhead);
-    console.log(`📈 ${regionName} prediction for ${daysAhead} days:`, {
-      historyLength: filteredHistory.length,
-      predictionsCount: result.predictions.length,
-      lastPrediction: result.predictions[result.predictions.length - 1]?.predictedPrice
-    });
-    return result;
-  }, [filteredHistory, daysAhead, regionName]);
+    return predictPrices(filteredHistory, daysAhead);
+  }, [filteredHistory, daysAhead]);
   
   if (filteredHistory.length < 3) {
     return (
