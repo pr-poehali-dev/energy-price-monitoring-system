@@ -242,14 +242,15 @@ export default function ForecastTab({
                           </p>
                         </div>
                       </div>
-                    <div className="text-right">
-                      <Badge variant="destructive" className="text-xs">
-                        <Icon name="TrendingUp" size={12} className="mr-1" />
-                        +{item.changePercent.toFixed(1)}%
-                      </Badge>
+                      <div className="text-right">
+                        <Badge variant="destructive" className="text-xs">
+                          <Icon name="TrendingUp" size={12} className="mr-1" />
+                          +{item.changePercent.toFixed(1)}%
+                        </Badge>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </Card>
 
