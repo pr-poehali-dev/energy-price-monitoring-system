@@ -51,10 +51,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         if action == 'delete_all_prices':
             # Удаляем все записи из price_history
-            cursor.execute('DELETE FROM t_p67469144_energy_price_monitor.price_history')
+            cursor.execute('DELETE FROM price_history')
             deleted_count = cursor.rowcount
             conn.commit()
             result = {'deleted_rows': deleted_count, 'message': f'Deleted {deleted_count} price records'}
+        
+        elif action == 'delete_generated_data':
+            # Удаляем только сгенерированные данные, оставляем реальные из ФАС
+            cursor.execute("""
+                DELETE FROM price_history 
+                WHERE source IN ('estimate', 'MONTHLY_GENERATED', 'HISTORICAL_DATA', 'IMPORT_2024', 'test')
+            """)
+            deleted_count = cursor.rowcount
+            conn.commit()
+            result = {'deleted_rows': deleted_count, 'message': f'Deleted {deleted_count} generated records, kept FAS data'}
         
         elif action == 'get_all_regions':
             # Получаем список всех регионов
